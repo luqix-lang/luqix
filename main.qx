@@ -1,0 +1,19 @@
+let list = importc("list")
+
+fn finabocci(n) {
+    a = 0
+    b = 1
+    c = a + b
+    fib = [a, b, c]
+
+    for(let i = 0; i < n; i++) {
+        a = b
+        b = c
+        c = a + b
+
+        list.append(fib, c)
+    }
+    return fib
+}
+
+print(finabocci(10))

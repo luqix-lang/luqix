@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<title>gui</title>
+
+	<link rel='stylesheet' type='text/css' href='/home/rogers/Templates/facile-web/css/fancy.css'>
+    <link rel='stylesheet' type='text/css' href='/home/rogers/Templates/facile-web/css/tailwind.min.css'>
+</head>
+<body>
+
+	<div class='flex vh-100 flex-wrap align-items-center justify-center'>
+		<div class='col-10 flex justify-center flex-wrap rounded-md'>
+			<input id='pt' type='' class='col-7 py-3 px-2 rounded-md b-1 b-gray-700 outline-none b-blue-500-f' name=''>
+			<button id='bn' class='btn mt-5 bg-blue-500 round-lg px-5 py-3 text-white col-7'>hello world</button>
+
+			<div class='col-8 mt-4' id='said'>
+				<p class='py-2'>greet me man</p>
+			</div>		
+		</div>
+	</div>
+
+	<script type='text/javascript'>
+		let idd = document.getElementById('said');
+		let pt = document.getElementById('pt');
+		let bn = document.getElementById('bn');
+
+		let ws = new WebSocket('ws://localhost:7071/');
+		said.innerHTML += `<p class='py-2'>connected</p>`
+
+		ws.onmessage = ({data}) => {
+			said.innerHTML += `<p class='py-2'>${data}</p>`
+		}
+
+		bn.addEventListener('click', ()=>{
+			ws.send(pt.value);
+			pt.value = ''
+		})
+
+		
+	</script>
+
+</body>
+</html>
