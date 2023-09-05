@@ -124,7 +124,11 @@ class Op_FnDef: LdByte {
 		foreach(LdByte i; defaults)
 			defs ~= i(_heap);
 
-		(*_heap)[name] = new LdFn(name, file, params, defs, code, *_heap);
+		auto fn = new LdFn(name, file, params, defs, code, *_heap);
+
+		if(name == "-name-less-")
+			return fn;
+
 		return RETURN.A;
 	}
 }

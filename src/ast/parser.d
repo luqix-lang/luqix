@@ -302,7 +302,7 @@ class _Parse{
 
 	Node unknownFnNode(){
 		this.next();
-		return new FunctionNode(["lambda", format("%s:d", this.file, tok.line)]~this.getParams(), this.defaults, new _Parse(this.getCode(), this.file).ast);
+		return new FunctionNode(["-name-less-", format("%s:%d", this.file, tok.line)] ~ this.getParams(), this.defaults, new _Parse(this.getCode(), this.file).ast);
 	}
 
 	Node factor(string end){

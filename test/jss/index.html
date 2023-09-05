@@ -6,18 +6,17 @@
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
 	<title>gui</title>
 
-	<link rel='stylesheet' type='text/css' href='/home/rogers/Templates/facile-web/css/fancy.css'>
-    <link rel='stylesheet' type='text/css' href='/home/rogers/Templates/facile-web/css/tailwind.min.css'>
+	<link rel='stylesheet' type='text/css' href='/home/rogers/Templates/luqix-web/css/fancy.css'>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
 	<div class='flex vh-100 flex-wrap align-items-center justify-center'>
 		<div class='col-10 flex justify-center flex-wrap rounded-md'>
-			<input id='pt' type='' class='col-7 py-3 px-2 rounded-md b-1 b-gray-700 outline-none b-blue-500-f' name=''>
-			<button id='bn' class='btn mt-5 bg-blue-500 round-lg px-5 py-3 text-white col-7'>hello world</button>
+			<input id='pt' type='' class='col-7 py-3 px-2  border-red-400 rounded-md b-2 b-gray-700 outline-none b-blue-500-f' name=''>
+			<button id='bn' class='btn mt-5 bg-blue-500 round-lg px-5 py-3 text-white col-7'>send</button>
 
 			<div class='col-8 mt-4' id='said'>
-				<p class='py-2'>greet me man</p>
 			</div>		
 		</div>
 	</div>
@@ -27,11 +26,11 @@
 		let pt = document.getElementById('pt');
 		let bn = document.getElementById('bn');
 
-		let ws = new WebSocket('ws://localhost:7071/');
+		let ws = new WebSocket('ws://localhost:5000/');
 		said.innerHTML += `<p class='py-2'>connected</p>`
 
-		ws.onmessage = ({data}) => {
-			said.innerHTML += `<p class='py-2'>${data}</p>`
+		ws.onmessage = (event) => {
+			said.innerHTML += event.data;
 		}
 
 		bn.addEventListener('click', ()=>{

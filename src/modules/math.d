@@ -1,6 +1,7 @@
 module lMath;
 
 import core.stdc.math;
+import std.math: round;
 
 import LdObject;
 
@@ -45,8 +46,10 @@ class oMath: LdOBJECT {
 
             "pow": new Pow(),
             "sqrt": new Sqrt(),
+            "cbrt": new Cbrt(),
             "ceil": new Ceil(),
             "floor": new Floor(),
+            "round": new Round(),
 
             "trunc": new Trunc(),
             "lgamma": new Lgamma(),
@@ -255,6 +258,15 @@ class Ceil: LdOBJECT
     override string __str__() { return "math.ceil (method)"; }
 }
 
+class Round: LdOBJECT
+{
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        return new LdNum(round(args[0].__num__));
+    }
+
+    override string __str__() { return "math.round (method)"; }
+}
+
 class Sqrt: LdOBJECT
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
@@ -263,6 +275,17 @@ class Sqrt: LdOBJECT
 
     override string __str__() { return "math.sqrt (method)"; }
 }
+
+
+class Cbrt: LdOBJECT
+{
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        return new LdNum(cbrt(args[0].__num__));
+    }
+
+    override string __str__() { return "math.cqrt (method)"; }
+}
+
 
 class Cos: LdOBJECT
 {

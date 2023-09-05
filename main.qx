@@ -1,19 +1,24 @@
-let list = importc("list")
+let str = importc('string')
+    bytes = importc('bytes')
+    websocket = importc('websocket')
 
-fn finabocci(n) {
-    a = 0
-    b = 1
-    c = a + b
-    fib = [a, b, c]
+hostname = 'localhost'
+port = 5000
 
-    for(let i = 0; i < n; i++) {
-        a = b
-        b = c
-        c = a + b
+app = websocket.WebsocketServer(hostname, port)
 
-        list.append(fib, c)
-    }
-    return fib
-}
+app.onopen(?(){
+    app.send(str.encode('Hello from Luqix'))
+})
 
-print(finabocci(10))
+
+app.onmessage(?(event){
+    print(event.data)
+
+    app.send(str.encode(f'Hello {bytes.decode(event.data)}, how are you doing'))
+})
+
+
+print(f'Webserver connecting at ws://{hostname}:{port}...')
+app.start();
+

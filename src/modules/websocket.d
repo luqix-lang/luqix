@@ -138,7 +138,7 @@ class _Websocket: LdOBJECT {
         for (size_t i = 0; i < msglen; ++i)
             decoded[i] = cast(ubyte)(bytes[offset + i] ^ masks[i % 4]);
 
-        LdOBJECT[1] ret = [new LdChr(cast(char[])decoded)];
+        LdOBJECT[1] ret = [new LdEnum("ws-event", ["data": new LdChr(cast(char[])decoded)])];
 
         // executing callback onmessage functions
         for(size_t i =0; i < onmessage.length; i++){
@@ -177,7 +177,7 @@ Socket _Acceptor(Socket ws){
 	    		swka = i[1];
 	    	}
 	    	break;
-	    }	    
+	    }
 
 	    if (wbSocket){
 		    swka ~= "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

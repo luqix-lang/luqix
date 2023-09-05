@@ -122,7 +122,7 @@ class _Shuffle: LdOBJECT
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
         randomShuffle(args[0].__array__);
-        return new LdNone();
+        return  RETURN.A;
     }
 
     override string __str__() { return "random.shuffle (method)"; }
