@@ -129,6 +129,7 @@ class Op_FnDef: LdByte {
 		if(name == "-name-less-")
 			return fn;
 
+		(*_heap)[name] = fn;
 		return RETURN.A;
 	}
 }

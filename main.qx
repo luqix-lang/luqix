@@ -1,24 +1,11 @@
-let str = importc('string')
-    bytes = importc('bytes')
-    websocket = importc('websocket')
-
-hostname = 'localhost'
-port = 5000
-
-app = websocket.WebsocketServer(hostname, port)
-
-app.onopen(?(){
-    app.send(str.encode('Hello from Luqix'))
-})
+let sqlite3 = importc('sqlite3')
 
 
-app.onmessage(?(event){
-    print(event.data)
-
-    app.send(str.encode(f'Hello {bytes.decode(event.data)}, how are you doing'))
-})
+db = sqlite3.open('/home/rogers/Desktop/pupils.db')
 
 
-print(f'Webserver connecting at ws://{hostname}:{port}...')
-app.start();
+fetch = db.execute("SELECT name, salary from COMPANY")
 
+db.close()
+
+print(fetch.data)

@@ -367,7 +367,15 @@ class _Lex{
 		while (end && tok != quot && tok){
 			if (this.tok == '\\')
 				str ~= get_escaped();
-			else 
+			
+			else if (this.tok == '\n') {
+				str ~= tok;
+				this.line += 1;
+
+				//this.tab = 0;
+				//this.loc = -1;
+			
+			} else 
 				str ~= this.tok;
 			
 			this.next();
