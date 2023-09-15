@@ -60,7 +60,7 @@ class _Open: LdOBJECT {
             "interrupt": new sqlInterrupt(this.db),
 
             "changes": new sqlChanges(this.db),
-            "totalChanges": new sqlTotalChanges(this.db),
+            "total_changes": new sqlTotalChanges(this.db),
         ];
     }
 
