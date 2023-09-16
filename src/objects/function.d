@@ -15,12 +15,12 @@ alias LdOBJECT[string] store;
 
 class LdFn: LdOBJECT {
 	size_t def_length;
-	store heap;                    string name, file;
+	store* heap;                    string name, file;
 	LdByte[] code;                 string[] params;
 	LdOBJECT ret;                  LdOBJECT[] defaults;
-	LdOBJECT[string] props,        point;
+	LdOBJECT[string] props;
 	
-	this(string name, string file, string[] params, LdOBJECT[] defaults, LdByte[] code, store heap){
+	this(string name, string file, string[] params, LdOBJECT[] defaults, LdByte[] code, store* heap){
 		this.name = name;
 		this.file = file;
 
@@ -42,8 +42,6 @@ class LdFn: LdOBJECT {
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-		point = heap.dup;
-		point["self"] = props["self"];
 
 		if(args.length < params.length){
 			size_t def = def_length - (params.length-args.length);
@@ -57,10 +55,13 @@ class LdFn: LdOBJECT {
 			args = args ~ defaults[def .. def_length];
 		}
 
+		auto point = (*heap).dup;
+		point["self"] = props["self"];
+
 		for(size_t i = 0; i < params.length; i++)
 			point[params[i]] = args[i];
 
-		auto l = heap["-traceback-"].__ptr__;
+		auto l = point["-traceback-"].__ptr__;
 		*l ~= new LdEnum("Proc", ["name": new LdStr(name), "file": new LdStr(format("%s:%d", (*mem)["-file-"].__str__, line))]);
 
 		auto ret_val = (*(new _Interpreter(code, &point).heap))["#rt"];

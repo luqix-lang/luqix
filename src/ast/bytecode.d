@@ -124,7 +124,7 @@ class Op_FnDef: LdByte {
 		foreach(LdByte i; defaults)
 			defs ~= i(_heap);
 
-		auto fn = new LdFn(name, file, params, defs, code, *_heap);
+		auto fn = new LdFn(name, file, params, defs, code, _heap);
 
 		if(name == "-name-less-")
 			return fn;
@@ -143,11 +143,11 @@ class Op_Return: LdByte {
 	}
 
 	override LdOBJECT opCall(HEAP* _heap) {
-		LdOBJECT feedback = value(_heap);
-		(*_heap)["#rt"] = feedback;
-		(*_heap)["#rtd"] = new LdFalse();
-		(*_heap)["#bk"] = new LdFalse();
-		return feedback;
+		(*_heap)["#rt"] = this.value(_heap);
+		(*_heap)["#rtd"] = RETURN.C;
+		(*_heap)["#bk"] = RETURN.C;
+
+		return RETURN.A;
 	}
 }
 
@@ -209,6 +209,7 @@ class Op_IfCase: LdByte {
 				break;
 			}
 		}
+
 		return RETURN.A;
 	}
 }
@@ -228,7 +229,7 @@ class Op_While: LdByte {
 			new _Interpreter(code, _heap);
 
 		if((*_heap)["#rtd"].__true__)
-			(*_heap)["#bk"] = new LdTrue();
+			(*_heap)["#bk"] = RETURN.B;
 
 		return RETURN.A;
 	}

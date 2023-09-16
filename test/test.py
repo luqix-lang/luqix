@@ -1,11 +1,8 @@
-import socket as s
+def sum(n):
+	if (n <= 1):
+		return n
+	else:
+		return sum(n - 1) + sum(n - 2)
 
-
-server = s.socket(s.AF_INET, s.SOCK_STREAM)
-server.connect(('localhost', 7175))
-
-while True:
-	server.send(input('Alice: ').encode())
-
-	msg = server.recv(1024)
-	print(msg)
+x = sum(7)
+print(x)

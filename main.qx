@@ -1,11 +1,11 @@
-let sqlite3 = importc('sqlite3')
 
 
-db = sqlite3.open('/home/rogers/Desktop/pupils.db')
+fn sum(n) {
+	if (n <= 1):
+		return n
+	else:
+		return sum(n - 1) + sum(n - 2)
+}
 
-
-fetch = db.execute("SELECT name, salary from COMPANY")
-print(db.total_changes())
-db.close()
-
-print(fetch.data)
+x = sum(7)
+print(x)

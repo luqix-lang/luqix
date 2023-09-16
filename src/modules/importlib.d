@@ -27,9 +27,9 @@ LdOBJECT[string] _StartHeap;
 
 LdOBJECT[string] __setImp__(string[] args) {
 	_StartHeap = [
-		"#rtd": new LdTrue(),
-		"#rt": new LdNone(),
-		"#bk": new LdTrue(),
+		"#rtd": RETURN.B,
+		"#rt": RETURN.A,
+		"#bk": RETURN.B,
 		"-traceback-": new LdArr([]),
 	];
 
