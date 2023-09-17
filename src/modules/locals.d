@@ -89,6 +89,8 @@ import lPath: oPath;
 
 import lParallelism: oParallel;
 
+import lNumber: oNumber;
+
 import lDtypes: oDtypes;
 import lRandom: oRandom;
 
@@ -108,7 +110,7 @@ import lUrl: oUrl;
 import lSqlite3: oSqlite3;
 
 
-const string[] _Core_Lib = ["base64", "bytes", "locals", "dict", "dtypes", "file", "json", "list", "math", "os", "parallelism", "path", "process", "random", "reg", "socket", "string", "sys", "sqlite3", "time", "url", "websocket"];
+const string[] _Core_Lib = ["base64", "bytes", "locals", "dict", "dtypes", "file", "json", "list", "math", "number", "os", "parallelism", "path", "process", "random", "reg", "socket", "string", "sys", "sqlite3", "time", "url", "websocket"];
 
 LdOBJECT[string] Required_Lib;
 
@@ -135,6 +137,8 @@ LdOBJECT import_core_library(string X){
 			return new oStr();
 		case "list":
 			return new oList();
+		case "number":
+			return new oNumber();
 		case "dict":
 			return new oDict();
 		case "process":

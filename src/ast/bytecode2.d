@@ -306,23 +306,22 @@ class Op_PiAssign: LdByte {
 class Op_Pobj: LdByte {
 	string name;
 	string[] attrs;
-	LdByte[] contrib, code;
+	LdByte[] base, code;
 
-	this(string name, LdByte[] contrib, string[] attrs, LdByte[] code){
+	this(string name, LdByte[] base, string[] attrs, LdByte[] code){
 		this.name = name;
 		this.code = code;
 		this.attrs = attrs;
-		this.contrib = contrib;
+		this.base = base;
 	}
 
 	override LdOBJECT opCall(HEAP* _heap){
-		LdOBJECT[] h;
+		LdOBJECT[] dna;
 
-		foreach(LdByte i; contrib)
-			h ~= i(_heap);
+		foreach(LdByte i; base)
+			dna ~= i(_heap);
 
-		return new LdTyp(name, h, attrs, code, _heap);
-		//return RETURN.A;
+		return new LdTyp(name, dna, attrs, code, *_heap);
 	}
 }
 

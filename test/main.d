@@ -1,19 +1,10 @@
 import std.stdio;
 
-import std.algorithm;
+import std.algorithm.comparison: min, max;
 
-import std.file;
-import std.path;
-
-
-void minn(int x){
-	writeln(x);
-}
-
-void minn(int x, int y){
-	writeln(x, y);
-}
 
 void main(){
-	minn(2, 8);
+	char[char] v = ['a': '1', 'b': '2'];
+
+	writeln(v.get('j', '4'));
 }

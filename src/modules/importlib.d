@@ -96,7 +96,7 @@ string inPath(string ph) {
 
 	foreach(i; lLocals.Required_Lib["sys"].__getProp__("path").__array__)
 	{
-		foreach(ext; ["", ".qx"]) {
+		foreach(ext; ["", ".lqs"]) {
 			md = buildPath(i.__str__, format("%s%s", ph, ext));
 
 			if(exists(md))
@@ -161,7 +161,7 @@ void load_all_module_dir(LdOBJECT mod, string[3] htap, HEAP* mem, int line) {
 		p = buildPath(htap[1], i);
 
 		if(!exists(p)){
-			p = format("%s.qx", p);
+			p = format("%s.lqs", p);
 		
 			if(!exists(p))
 				throw new Exception(format("ImportError: Module not found\n path '%s' is not found in package %s.", i, htap[0]));
@@ -188,7 +188,7 @@ void directory_library(string[3] htap, string[string]*attrs, string[]*order, HEA
 		f = buildPath(htap[1], i);
 
 		if (!exists(f)) {
-			f = format("%s.qx", f);
+			f = format("%s.lqs", f);
 
 			if(!exists(f))
 				throw new Exception(format("ImportError: file attr '%s' is not found in dir module '%s'", i, htap[0]));
@@ -224,8 +224,8 @@ void file_library(string[3] htap, string[string]*attrs, string[]*order, HEAP*mem
 LdOBJECT read_dir_module(string[3] htap, int line){
 	LdModule mod;
 
-	string[] list= dirEntries(htap[1], "*.qx", SpanMode.shallow, false).map!(i=>cast(string)i).array;
-	string pack = buildPath(htap[1], "__pack__.qx");
+	string[] list= dirEntries(htap[1], "*.lqs", SpanMode.shallow, false).map!(i=>cast(string)i).array;
+	string pack = buildPath(htap[1], "__pack__.lqs");
 
 	if (find(list, pack).length) {
 		if (pack in imported_modules)

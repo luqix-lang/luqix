@@ -26,6 +26,8 @@ class oDict: LdOBJECT
 
             "update": new _Update(),
             "rehash": new _Rehash(),
+
+            "has": new _Has(),
         ];
     }
 
@@ -49,7 +51,7 @@ class _Clear: LdOBJECT {
 
 class _Get: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        return args[0].__hash__[args[1].__str__];
+        return (args[0].__hash__).get(args[1].__str__, RETURN.A);
     }
     override string __str__() { return "dict.get (method)"; }
 }
@@ -109,4 +111,15 @@ class _Rehash: LdOBJECT {
     }
 
     override string __str__() { return "dict.rehash (method)"; }
+}
+
+class _Has: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        if (args[1].__str__ in args[0].__hash__)
+            return RETURN.B;
+
+        return RETURN.C;
+    }
+
+    override string __str__() { return "dict.has (method)"; }
 }

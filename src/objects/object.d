@@ -61,7 +61,10 @@ class LdOBJECT {
 
 	//LdOBJECT opCall(LdOBJECT[] args) { return new LdOBJECT(); }
 
-	LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) { return new LdOBJECT(); }
+	LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
+		throw new Exception(format("TypeError: '%s' is not a function", __type__));
+		return new LdOBJECT();
+	}
 
 	double __true__() { return 0; }
 }

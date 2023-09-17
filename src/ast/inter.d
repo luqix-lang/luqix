@@ -242,6 +242,8 @@ class _GenInter {
 				attrs ~= x.args[0];
 			else if (x.type == 6)
 				attrs ~= x.str;
+			else if (x.type == 11)
+				attrs ~= x.str;
 		}
 
 		bytez ~= new Op_Pobj(leaf.str, herits, attrs, new _GenInter(leaf.params).bytez);

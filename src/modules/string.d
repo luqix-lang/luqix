@@ -81,7 +81,7 @@ class oStr: LdOBJECT
 
     override LdOBJECT[string] __props__(){ return props; }
 
-    override string __str__(){ return "str (native module)"; }
+    override string __str__(){ return "string (native module)"; }
 }
 
 

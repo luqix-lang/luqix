@@ -12,12 +12,12 @@ alias LdOBJECT[string] HEAP;
 
 class Ld_Super_Object: LdOBJECT
 {
-	HEAP* heap; string name;
+	HEAP heap; string name;
 	LdByte[] code; string[] attrs;
 
 	LdOBJECT _self; LdOBJECT[string] props;
 	
-	this(string name, string[] attrs, LdByte[] code, HEAP* heap, LdOBJECT _self){
+	this(string name, string[] attrs, LdByte[] code, HEAP heap, LdOBJECT _self){
 		this.heap = heap;        this.name = name;
 		this.code = code;        this.attrs = attrs;
 
@@ -38,12 +38,16 @@ class Ld_Super_Object: LdOBJECT
 		HEAP all;
 
 		HEAP tmpMem = heap.dup;
-		HEAP* scoped = new _Interpreter(code, &tmpMem).heap;
+		HEAP scoped = *(new _Interpreter(code, &tmpMem).heap);
 
 		foreach(string i; attrs){
-			fn = (*scoped)[i];
-			fn.__setProp__("__object__", new LdStr(name~'.'));
-			fn.__setProp__("__repr__", new LdStr(join([name, ".", fn.__getProp__("__name__").__str__, " (object module method)"])));
+			fn = scoped[i];
+
+			if (fn.__type__ == "function") {
+				fn.__setProp__("__object__", new LdStr(name~'.'));
+				fn.__setProp__("__repr__", new LdStr(join([name, ".", fn.__getProp__("__name__").__str__, " (object module method)"])));
+			}
+			
 			all[i] = fn;
 		}
 
@@ -60,32 +64,32 @@ class Ld_Super_Object: LdOBJECT
 
 class LdTyp: LdOBJECT
 {
-	HEAP* heap;
+	HEAP heap;
 	string name;
 	LdByte[] code;
 	string[] attrs;
-	LdOBJECT[] _herit;
+	LdOBJECT[] inherit;
 	LdOBJECT[string] props;
 	
-	this(string name, LdOBJECT[] _herit, string[] attrs, LdByte[] code, HEAP* heap){
+	this(string name, LdOBJECT[] inherit, string[] attrs, LdByte[] code, HEAP heap){
 		this.heap = heap;
 		this.name = name;
 		this.code = code;
 		this.attrs = attrs;
-		this._herit = _herit;
+		this.inherit = inherit;
 
 		this.props = [
 			"__name__": new LdStr(name),
 		];
 
 		// making object properties from even inherited objects
-		foreach(LdOBJECT i; _herit ~ this){
+		foreach(LdOBJECT i; inherit ~ this){
 			foreach(string x, LdOBJECT y; i.__property__)
-				props[x] = y;
+				this.props[x] = y;
 		}
 
 		// adding the object to parent scope
-		(*heap)[name] = this;
+		heap[name] = this;
 	}
 
 	override LdOBJECT[string] __property__(){
@@ -93,12 +97,16 @@ class LdTyp: LdOBJECT
 		HEAP all;
 
 		HEAP tmpMem = heap.dup;
-		HEAP* scoped = new _Interpreter(code, &tmpMem).heap;
+		HEAP scoped = *(new _Interpreter(code, &tmpMem).heap);
 
 		foreach(string i; attrs){
-			fn = (*scoped)[i];
-			fn.__setProp__("__object__", new LdStr(name~'.'));
-			fn.__setProp__("__repr__", new LdStr(join([name, ".", fn.__getProp__("__name__").__str__, " (type module method)"])));
+			fn = scoped[i];
+
+			if (fn.__type__ == "function") {
+				fn.__setProp__("__object__", new LdStr(name~'.'));
+				fn.__setProp__("__repr__", new LdStr(join([name, ".", fn.__getProp__("__name__").__str__, " (type module method)"])));
+			}
+
 			all[i] = fn;
 		}
 
@@ -110,7 +118,7 @@ class LdTyp: LdOBJECT
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-		return new LdNobj(name, args, _herit, attrs, code, heap);
+		return new LdNobj(name, args, inherit, attrs, code, heap);
 	}
 
 	override string __type__(){
@@ -125,14 +133,14 @@ class LdTyp: LdOBJECT
 
 class LdNobj: LdOBJECT
 {
-	HEAP* heap;
+	HEAP heap;
 	string name;
 	LdByte[] code;
 	string[] attrs;
 	LdOBJECT[] _herit, _params;
 	LdOBJECT[string] props;
 	
-	this(string name, LdOBJECT[] _parameters, LdOBJECT[] _herit, string[] attrs, LdByte[] code, HEAP* heap) {
+	this(string name, LdOBJECT[] _parameters, LdOBJECT[] _herit, string[] attrs, LdByte[] code, HEAP heap) {
 		this.heap = heap;
 		this.name = name;
 		this.code = code;
@@ -149,9 +157,11 @@ class LdNobj: LdOBJECT
 		foreach(LdOBJECT i; _herit ~ this){
 
 			foreach(string x, LdOBJECT y; i.__property__){
-				y.__setProp__("self", this);
-				y.__setProp__("__object__", new LdStr(name~'.'));
-				y.__setProp__("__repr__", new LdStr(join([name, ".", y.__getProp__("__name__").__str__, " (object module method)"])));
+				if (y.__type__ == "function") {
+					y.__setProp__("self", this);
+					y.__setProp__("__object__", new LdStr(name~'.'));
+					y.__setProp__("__repr__", new LdStr(join([name, ".", y.__getProp__("__name__").__str__, " (object module method)"])));
+				}
 
 				props[x] = y;
 			}
@@ -159,7 +169,7 @@ class LdNobj: LdOBJECT
 
 		// calling constructor function
 		if ("__init__" in props)
-			props["__init__"](_parameters, 0, heap);
+			props["__init__"](_parameters, 0, &heap);
 	}
 
 	override LdOBJECT[string] __property__(){
