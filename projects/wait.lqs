@@ -1,0 +1,9 @@
+let sleep = importc('time').sleep
+
+
+print("I am going to sleep now.")
+
+# Sleep for 3 seconds.
+sleep(3000)
+
+print("I woke up!")

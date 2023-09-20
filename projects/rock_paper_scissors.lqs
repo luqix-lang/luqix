@@ -1,0 +1,37 @@
+let random = importc('random')
+
+
+fn logging(user, cpu) {
+    if user == cpu:
+        print(f"It\'s a tie!")
+    elif user == "rock":
+        if cpu == "scissors":
+            print("Rock smashes scissors! You win!")
+        else:
+            print("Paper covers rock! You lose.")
+    elif user == "paper":
+        if cpu == "rock":
+            print("Paper covers rock! You win!")
+        else:
+            print("Scissors cuts paper! You lose.")
+    elif user == "scissors":
+        if cpu == "paper":
+            print("Scissors cuts paper! You win!")
+        else:
+            print("Rock smashes scissors! You lose.")
+}
+
+
+fn start_game(){
+    user = prompt("Enter one of (rock, paper, scissors): ")
+
+    actions = ["rock", "paper", "scissors"]
+    cpu = random.pick(actions)
+
+    print(f"\nYou choose {user}, cpu chose {cpu}.\n")
+
+    logging(user, cpu)
+}
+
+ start_game()
+

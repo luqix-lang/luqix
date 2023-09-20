@@ -22,14 +22,8 @@ class oRandom: LdOBJECT
 			"random": new _Random(),
 			"uniform": new _Uniform(),
 
-			"integer": new _RandInt(),
-			"bool": new _Bool(),
 
 			"pick": new _Pick(),
-
-			"string": new _String(),
-			"string_pool": new _Pool(),
-
 		];
 	}
 
@@ -39,38 +33,7 @@ class oRandom: LdOBJECT
 }
 
 
-class _Pool: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        string str;
-    	string pool = args[0].__str__;
 
-        for(ulong i = 0; i < args[1].__num__; i++)
-            str ~= pool[uniform(0, pool.length)];
-
-        return new LdStr(str);
-    }
-
-    override string __str__() { return "random.string (method)"; }
-}
-
-class _String: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-    	string str;
-        string pick = "kyKSegYpwanMfLvmtNq82B6Z4AxblJDV17Woj0h3I9CQrcEPuzHGFdTOUiX5sR";
-
-        if(args.length > 1)
-            pick = args[1].__str__ ~ pick; 
-
-        for(int i = 0; i < args[0].__num__; i++)
-            str ~= pick[uniform(0, pick.length)];
-
-        return new LdStr(str);
-    }
-
-    override string __str__() { return "random.string (method)"; }
-}
 
 class _Pick: LdOBJECT 
 {
@@ -81,29 +44,7 @@ class _Pick: LdOBJECT
     override string __str__() { return "random.pick (method)"; }
 }
 
-class _Bool: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        if ([true, false][cast(int)(uniform(0, 2))])
-            return new LdTrue();
 
-        return new LdFalse();
-    }
-
-    override string __str__() { return "random.bool (method)"; }
-}
-
-class _RandInt: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        if (args.length > 1)
-            return new LdNum(cast(int)(uniform(args[0].__num__, args[1].__num__)));
-        
-        return new LdNum(cast(int)(uniform(0, args[0].__num__)));
-    }
-
-    override string __str__() { return "random.integer (method)"; }
-}
 
 class _Sample: LdOBJECT 
 {
