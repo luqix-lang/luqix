@@ -42,7 +42,7 @@ class oS: LdOBJECT
             "rmdirs": new _Rmdirs(),
 
             "tempdir": new _Tempdir(),
-			"platform": new _Platform(),
+			"platform": new LdStr(Platform),
 		];
 	}
 
@@ -215,51 +215,46 @@ class _Arch: LdOBJECT
 }
 
 
-class _Platform: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        string plat = "not_found";
+string Platform() {
+    string plat = "not_found";
 
-        version (Windows){
-            plat = "windows";
+    version (Windows){
+        plat = "windows";
 
-        } version (linux){
-            plat = "linux";
+    } version (linux){
+        plat = "linux";
 
-        } version (FreeBSD){
-            plat = "freeBSD";
+    } version (FreeBSD){
+        plat = "freeBSD";
 
-        } version (OpenBSD){
-            plat = "openBSD";
+    } version (OpenBSD){
+        plat = "openBSD";
 
-        } version (NetBSD){
-            plat = "netBSD";
+    } version (NetBSD){
+        plat = "netBSD";
 
-        } version (DragonFlyBSD){
-            plat = "dragonFlyBSD";
+    } version (DragonFlyBSD){
+        plat = "dragonFlyBSD";
 
-        } version (FreeBSD){
-            plat = "freeBSD";
+    } version (FreeBSD){
+        plat = "freeBSD";
 
-        } version (BSD){
-            plat = "BSD";
+    } version (BSD){
+        plat = "BSD";
 
-        } version (OSX){
-            plat = "OSX";
+    } version (OSX){
+        plat = "OSX";
 
-        } version (IOS){
-            plat = "iOS";
+    } version (IOS){
+        plat = "iOS";
 
-        } version (Android){
-            plat = "android";
+    } version (Android){
+        plat = "android";
 
-        } version (Solaris){
-            plat = "solaris";
+    } version (Solaris){
+        plat = "solaris";
 
-        }
-        return new LdStr(plat);
     }
-
-    override string __str__() { return "os.platform (method)"; }
+    return plat;
 }
 

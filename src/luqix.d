@@ -54,7 +54,7 @@ int _console(){
 	TOKEN[] tokens;
 	LdByte[] bcode;
 
-	writef(" Luqix 1.00.1 (official July 26 2023)\n check https://luqix-lang.github.io\n\n");
+	writeln(" Luqix 0.5.1 (Aug 5 2022)\n check https://luqix-lang.github.io");
 
 	while (true)
 	{
