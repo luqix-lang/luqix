@@ -42,6 +42,7 @@ class LdFn: LdOBJECT {
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+
 		if(args.length < params.length){
 			size_t def = def_length - (params.length-args.length);
 
@@ -54,20 +55,19 @@ class LdFn: LdOBJECT {
 			args = args ~ defaults[def .. def_length];
 		}
 
-		auto point = heap.dup;
+		auto point = this.heap.dup;
 		point["self"] = props["self"];
-
 
 		for(size_t i = 0; i < params.length; i++)
 			point[params[i]] = args[i];
 
-		auto l = point["-traceback-"].__ptr__;
-		*l ~= new LdEnum("Proc", ["name": new LdStr(name), "file": new LdStr(format("%s:%d", (*mem)["-file-"].__str__, line))]);
+		//auto l = point["-traceback-"].__ptr__;
+		//*l ~= new LdEnum("Proc", ["name": new LdStr(name), "file": new LdStr(format("%s:%d", (*mem)["-file-"].__str__, line))]);
 
 		auto ret_val = (*(new _Interpreter(code, &point).heap))["#rt"];
 
-		remove(*l, ((*l).length)-1);
-		(*l).length--;
+		//remove(*l, ((*l).length)-1);
+		//(*l).length--;
 
 		return ret_val;
 	}

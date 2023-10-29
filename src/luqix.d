@@ -123,8 +123,9 @@ int _start(string[] args){
 int main(string[] args)
 {
 	args = args.remove(0);
-	
-	LdBytes._AUTO_VARS = __setImp__(args);
+
+	// setting starting variables
+	__setImp__(args);
 
 	if(!args.length)
 		return _console();

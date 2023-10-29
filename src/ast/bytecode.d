@@ -17,8 +17,6 @@ import LdExec;
 
 alias LdOBJECT[string] HEAP;
 
-LdOBJECT[string] _AUTO_VARS;
-
 
 class LdByte {
 	LdByte[string] hash;
@@ -61,9 +59,6 @@ class Op_Id: LdByte {
 	override LdOBJECT opCall(HEAP* _heap) {
 		if (key in *_heap)
 			return (*_heap)[key];
-
-		else if (key in _AUTO_VARS)
-			return _AUTO_VARS[key];
 
 		string read;
 

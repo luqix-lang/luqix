@@ -39,7 +39,7 @@ class oTime: LdOBJECT
 
     override LdOBJECT[string] __props__(){ return props; }
 
-	override string __str__(){ return "time (unit)"; }
+	override string __str__(){ return "time (core module)"; }
 }
 
 

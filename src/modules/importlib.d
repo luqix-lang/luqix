@@ -4,14 +4,15 @@ import std.format: format;
 import std.stdio: writeln;
 
 import std.algorithm.searching: endsWith, startsWith, find;
-import std.algorithm.iteration: map;
+import std.algorithm.iteration: map, each;
 import std.algorithm.mutation: remove;
 
 import std.array: array, split, replace;
 import std.file: exists, isFile, isDir, readText, dirEntries, SpanMode;
 
 import std.path: buildPath, absolutePath, stripExtension, baseName, dirSeparator;
-import LdParser, LdLexer, LdNode, LdBytes, LdIntermediate, LdExec;
+import LdParser, LdNode, LdBytes, LdIntermediate, LdExec;
+import LdLexer: _Lex;
 
 import LdObject;
 import lLocals, lSys: oSys;
@@ -47,7 +48,7 @@ LdOBJECT[string] __setImp__(string[] args) {
 	// setting modules to imported_modules
 	sys.__setProp__("modules", new LdHsh(imported_modules));
 
-	return [
+	auto mwima = [
 
 		"attr": _locals_functions["attr"],
 		"type": _locals_functions["type"],
@@ -72,6 +73,11 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"iter": _locals_functions["iter"],				
 		"StopIterator": _locals_functions["StopIterator"],
 	];
+
+	mwima.keys().each!(i => _StartHeap[i] = mwima[i]);
+	rehash(_StartHeap);
+
+	return ["%%%": _locals_functions["attr"]];
 }
 
 

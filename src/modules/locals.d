@@ -107,10 +107,11 @@ import Os: oS;
 import Websock: oWebsock;
 
 import lUrl: oUrl;
+import lThread: oThread;
 //import lSqlite3: oSqlite3;
 
 
-const string[] _Core_Lib = ["base64", "bytes", "locals", "dict", "dtypes", "file", "json", "list", "math", "number", "os", "parallelism", "path", "process", "random", "reg", "socket", "string", "sys", "sqlite3", "time", "url", "websocket"];
+const string[] _Core_Lib = ["base64", "bytes", "locals", "dict", "dtypes", "file", "json", "list", "math", "number", "os", "parallelism", "path", "process", "random", "reg", "socket", "string", "sys", "sqlite3", "thread", "time", "url", "websocket"];
 
 LdOBJECT[string] Required_Lib;
 
@@ -145,6 +146,8 @@ LdOBJECT import_core_library(string X){
 			return new oSubProcess();
 		case "bytes":
 			return new oBytes();
+		case "thread":
+			return new oThread();
 		case "parallelism":
 			return new oParallel();
 		case "sqlite3":
