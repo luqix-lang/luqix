@@ -1,19 +1,6 @@
 threading = importc('thread')
-list = importc('list')
-time = importc('time')
+os = importc('os')
 
 
-function f1(){
-	for(i; i < 10; i++)
-		time.sleep(1000)
-		print('from f1')
-}
 
-function f2(){
-	for(i; i < 10; i++)
-		time.sleep(1000)
-		print('....')
-}
-
-threading.Thread(f1, [])
-threading.Thread(f2, [])
+print(os.getpid())

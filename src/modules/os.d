@@ -5,6 +5,8 @@ import core.stdc.stdlib: system, getenv, abort;
 import std.string: toStringz;
 import std.algorithm.iteration: map;
 
+import core.thread.osthread: getpid;
+
 import std.conv: to;
 import std.array: array;
 
@@ -43,6 +45,8 @@ class oS: LdOBJECT
 
             "tempdir": new _Tempdir(),
 			"platform": new LdStr(Platform),
+
+            "getpid": new _Getpid(),
 		];
 	}
 
@@ -60,6 +64,16 @@ class _Abort: LdOBJECT
     }
 
     override string __str__() { return "os.abort (method)"; }
+}
+
+
+class _Getpid: LdOBJECT 
+{
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        return new LdNum(getpid());
+    }
+
+    override string __str__() { return "os.getpid (method)"; }
 }
 
 
