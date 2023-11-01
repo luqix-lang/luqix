@@ -20,6 +20,7 @@ class oSubProcess: LdOBJECT
 		this.props = [
             "run": new _Run(),
             "Popen": new _Popen(),
+            "browse": new _Browse(),
 		];
 	}
 
@@ -29,8 +30,7 @@ class oSubProcess: LdOBJECT
 }
 
 
-class _Run: LdOBJECT 
-{
+class _Run: LdOBJECT  {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
     	string env = null;
 
@@ -41,6 +41,16 @@ class _Run: LdOBJECT
 
     override string __str__() { return "process.run (method)"; }
 }
+
+class _Browse: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+    	browse(args[0].__str__);
+    	return RETURN.B;
+    }
+
+    override string __str__() { return "process.browse (method)"; }
+}
+
 
 
 class _Wait: LdOBJECT {
@@ -141,7 +151,7 @@ class _Popen: LdOBJECT
         if (this.shell)
             return new _Pro(spawnShell(cmd, files["stdin"], files["stdout"], files["stderr"]), files);
 
-        return new _Pro(spawnProcess(cmd, files["stdin"], files["stdout"], files["stderr"]), files);
+        return new _Pro(spawnProcess(split(cmd), files["stdin"], files["stdout"], files["stderr"]), files);
     }
 
     override string __str__() { return "process.Popen (method)"; }

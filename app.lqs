@@ -1,6 +1,4 @@
-threading = importc('thread')
-os = importc('os')
 
+x = 90
 
-
-print(os.getpid())
+print(f'I am {x}o')
