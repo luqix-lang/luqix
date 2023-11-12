@@ -3,7 +3,11 @@ module lSocket;
 
 import std.socket;
 import std.conv: to;
+
+import std.uni: toLower;
 import std.stdio: writeln;
+import std.format: format;
+
 
 import LdObject;
 
@@ -17,12 +21,76 @@ class oSocket: LdOBJECT
 		this.props = [
 			"Socket": new new_socket(),
 
-			"addrFamily": address_family(),
-			"sockType": socket_type(),
-			"protoType": protocol_type(),
-			"shutType": shutdown_type(),
-
 			"getaddrinfo": new GetAdrrInfo(),
+			"gethostbyname": new GetHostByName(),
+			"gethostbyaddr": new GetHostByAddr(),
+
+
+			"SOCK_STREAM": new LdNum(SocketType.STREAM),
+			"SOCK_RAW": new LdNum(SocketType.RAW),
+			"SOCK_RDM": new LdNum(SocketType.RDM),
+			"SOCK_SEQPACKET": new LdNum(SocketType.SEQPACKET),
+			"SOCK_DGRAM": new LdNum(SocketType.DGRAM),
+
+
+			"AF_INET": new LdNum(AddressFamily.INET),
+			"AF_INET6": new LdNum(AddressFamily.INET6),
+			"AF_IPX": new LdNum(AddressFamily.IPX),
+			"AF_UNIX": new LdNum(AddressFamily.UNIX),
+			"AF_UNSPEC": new LdNum(AddressFamily.UNSPEC),
+			"AF_APPLETALK": new LdNum(AddressFamily.APPLETALK),
+
+			"IPPROTO_IP": new LdNum(ProtocolType.IP),
+			"IPPROTO_ICMP": new LdNum(ProtocolType.ICMP),
+			"IPPROTO_IGMP": new LdNum(ProtocolType.IGMP),
+			"IPPROTO_GGP": new LdNum(ProtocolType.GGP),
+			"IPPROTO_TCP": new LdNum(ProtocolType.TCP),
+			"IPPROTO_PUP": new LdNum(ProtocolType.PUP),
+			"IPPROTO_UDP": new LdNum(ProtocolType.UDP),
+			"IPPROTO_IDP": new LdNum(ProtocolType.IDP),
+			"IPPROTO_RAW": new LdNum(ProtocolType.RAW),
+			"IPPROTO_IPV6": new LdNum(ProtocolType.IPV6),
+
+			"SHUT_RD": new LdNum(SocketShutdown.SEND),
+			"SHUT_WR": new LdNum(SocketShutdown.RECEIVE),
+			"SHUT_RDWR": new LdNum(SocketShutdown.BOTH),
+
+			"SOL_ICMP": new LdNum(SocketOptionLevel.ICMP),
+			"SOL_RAW": new LdNum(SocketOptionLevel.RAW),
+			"SOL_SOCKET": new LdNum(SocketOptionLevel.SOCKET),
+			"SOL_GGP": new LdNum(SocketOptionLevel.GGP),
+			"SOL_IP": new LdNum(SocketOptionLevel.IP),
+			"SOL_PUP": new LdNum(SocketOptionLevel.PUP),
+			"SOL_IPV6": new LdNum(SocketOptionLevel.IPV6),
+			"SOL_IGMP": new LdNum(SocketOptionLevel.IGMP),
+			"SOL_UDP": new LdNum(SocketOptionLevel.UDP),
+			"SOL_TCP": new LdNum(SocketOptionLevel.TCP),
+			"SOL_IDP": new LdNum(SocketOptionLevel.IDP),
+
+			"SO_ACCEPTCONN": new LdNum(SocketOption.ACCEPTCONN),
+			"SO_BROADCAST": new LdNum(SocketOption.BROADCAST),
+			"SO_DEBUG": new LdNum(SocketOption.DEBUG),
+			"SO_DONTROUTE": new LdNum(SocketOption.DONTROUTE),
+			"SO_ERROR": new LdNum(SocketOption.ERROR),
+			"SO_IPV6_JOIN_GROUP": new LdNum(SocketOption.IPV6_JOIN_GROUP),
+			"SO_IPV6_LEAVE_GROUP": new LdNum(SocketOption.IPV6_LEAVE_GROUP),
+			"SO_IPV6_MULTICAST_HOPS": new LdNum(SocketOption.IPV6_MULTICAST_HOPS),
+			"SO_IPV6_MULTICAST_IF": new LdNum(SocketOption.IPV6_MULTICAST_IF),
+			"SO_IPV6_MULTICAST_LOOP": new LdNum(SocketOption.IPV6_MULTICAST_LOOP),
+			"SO_IPV6_UNICAST_HOPS": new LdNum(SocketOption.IPV6_UNICAST_HOPS),
+			"SO_IPV6_V6ONLY": new LdNum(SocketOption.IPV6_V6ONLY),
+			"SO_KEEPALIVE": new LdNum(SocketOption.KEEPALIVE),
+			"SO_LINGER": new LdNum(SocketOption.LINGER),
+			"SO_OOBINLINE": new LdNum(SocketOption.OOBINLINE),
+			"SO_RCVBUF": new LdNum(SocketOption.RCVBUF),
+			"SO_RCVLOWAT": new LdNum(SocketOption.RCVLOWAT),
+			"SO_RCVTIMEO": new LdNum(SocketOption.RCVTIMEO),
+			"SO_REUSEADDR": new LdNum(SocketOption.REUSEADDR),
+			"SO_SNDBUF": new LdNum(SocketOption.SNDBUF),
+			"SO_SNDLOWAT": new LdNum(SocketOption.SNDLOWAT),
+			"SO_SNDTIMEO": new LdNum(SocketOption.SNDTIMEO),
+			"SO_TCP_NODELAY": new LdNum(SocketOption.TCP_NODELAY),
+			"SO_TYPE": new LdNum(SocketOption.TYPE),
 		];
 	}
 
@@ -36,175 +104,71 @@ class GetAdrrInfo: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
     	LdOBJECT[] info;
 
-        foreach(i; getAddressInfo(args[0].__str__, args[1].__str__))
-        	info ~= new LdArr([new LdNum(i.family), new LdNum(i.type), new LdNum(i.protocol), new LdStr(i.canonicalName), new LdArr([
-        			new LdStr(i.address.toAddrString),
-        			new LdNum(to!double(i.address.toPortString)),
-        		])]);
+    	auto addr = getAddress(args[0].__str__);
+    	auto op_len = addr.length/2;
 
-        return new LdArr(info);
+    	if(op_len == 1)
+    		return new LdStr(addr[0].toAddrString);
+
+    	return new LdStr(addr[op_len-1].toAddrString);
+
+        //foreach(i; getAddressInfo(args[0].__str__, args[1].__str__))
+        //	info ~= new LdArr([new LdNum(i.family), new LdNum(i.type), new LdNum(i.protocol), new LdStr(i.canonicalName), new LdArr([
+        //			new LdStr(i.address.toAddrString),
+        //			new LdNum(to!double(i.address.toPortString)),
+        //		])]);
+
+        ////return new LdArr(info);
     }
 
     override string __str__() { return "socket.getaddrinfo (method)"; }
 }
 
 
-LdOBJECT address_family()
-{
-	return new LdEnum("socket.addrFamily (object)", [
-			"APPLETALK": new LdNum(AddressFamily.APPLETALK),
-			"INET": new LdNum(AddressFamily.INET),
-			"INET6": new LdNum(AddressFamily.INET6),
-			"IPX": new LdNum(AddressFamily.IPX),
-			"UNIX": new LdNum(AddressFamily.UNIX),
-			"UNSPEC": new LdNum(AddressFamily.UNSPEC),
-		]);
+class GetHostByName: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+    	auto addr = getAddress(args[0].__str__);
+
+    	if(addr.length) {
+	    	auto op_len = addr.length/2;
+
+	    	if(op_len == 1)
+	    		return new LdStr(addr[0].toAddrString);
+
+	    	return new LdStr(addr[op_len-1].toAddrString);
+	    }
+
+	    return RETURN.A;
+    }
+
+    override string __str__() { return "socket.gethostbyname (method)"; }
 }
 
-LdOBJECT socket_type()
-{
-	return new LdEnum("socket.sockType (object)", [
-			"STREAM": new LdNum(SocketType.STREAM),
-			"DGRAM": new LdNum(SocketType.DGRAM),
-			"RAW": new LdNum(SocketType.RAW),
-			"RDM": new LdNum(SocketType.RDM),
-			"SEQPACKET": new LdNum(SocketType.SEQPACKET),
-		]);
+class GetHostByAddr: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+    	InternetHost ih = new InternetHost;
+		ih.getHostByAddr(args[0].__str__);
+
+		return new LdStr(ih.name);
+    }
+
+    override string __str__() { return "socket.gethostbyaddr (method)"; }
 }
 
-LdOBJECT protocol_type()
-{
-	return new LdEnum("socket.protoType (object)", [
-			"IP": new LdNum(ProtocolType.IP),
-			"ICMP": new LdNum(ProtocolType.ICMP),
-			"IGMP": new LdNum(ProtocolType.IGMP),
-			"GGP": new LdNum(ProtocolType.GGP),
-			"TCP": new LdNum(ProtocolType.TCP),
-			"PUP": new LdNum(ProtocolType.PUP),
-			"UDP": new LdNum(ProtocolType.UDP),
-			"IDP": new LdNum(ProtocolType.IDP),
-			"RAW": new LdNum(ProtocolType.RAW),
-			"IPV6": new LdNum(ProtocolType.IPV6),
-		]);
-}
-
-LdOBJECT shutdown_type()
-{
-	return new LdEnum("shut_type (Socket object)", [
-			"BOTH": new LdNum(SocketShutdown.BOTH),
-			"RECEIVE": new LdNum(SocketShutdown.RECEIVE),
-			"SEND": new LdNum(SocketShutdown.SEND),
-		]);
-}
-
-AddressFamily AF(ushort x)
-{
-	AddressFamily aF;
-
-	switch (x){
-	    case aF.INET6:
-	        return aF.INET6;
-
-	    case aF.UNIX:
-	        return aF.UNIX;
-
-	    case aF.IPX:
-	        return aF.IPX;
-
-	    case aF.APPLETALK:
-	        return aF.APPLETALK;
-
-	    case aF.UNSPEC:
-	        return aF.UNSPEC;
-
-	    default:
-	    	return aF.INET;
-	}
-
-	return aF.INET;
-}
-
-SocketType ST(int x)
-{
-    SocketType sK;
-
-    switch (x){
-	    case sK.DGRAM:
-	        return sK.DGRAM;
-
-	    case sK.RDM:
-	        return sK.RDM;
-
-	    case sK.RAW:
-	        return sK.RAW;
-
-	    case sK.SEQPACKET:
-	        return sK.SEQPACKET;
-
-	    default:
-	    	return sK.STREAM;
-	}
-
-	return sK.STREAM;
-}
-
-ProtocolType PT(int x)
-{
-    ProtocolType pT;
-
-    switch (x){
-	    case pT.IP:
-	    	return pT.IP;
-
-		case pT.ICMP:
-			return pT.ICMP;
-
-		case pT.IGMP:
-			return pT.IGMP;
-
-		case pT.GGP:
-			return pT.GGP;
-
-		case pT.TCP:
-			return pT.TCP;
-
-		case pT.PUP:
-			return pT.PUP;
-
-		case pT.UDP:
-			return pT.UDP;
-
-		case pT.RAW:
-			return pT.RAW;
-
-		case pT.IDP:
-			return pT.IDP;
-
-		case pT.IPV6:
-			return pT.IPV6;
-
-		default:
-			return pT.IP;
-	}
-
-	return pT.IP;
-}
-
-
-import std.uni: toLower;
 
 
 class new_socket: LdOBJECT
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         if (args.length == 2)
-        	return new _socket(new Socket(AF(cast(ushort)args[0].__num__),
-        								  ST(cast(int)args[1].__num__)));
+        	return new _socket(new Socket( cast(AddressFamily)args[0].__num__,
+        								   cast(SocketType)args[1].__num__) );
 
         else if (args.length > 2)
-        	return new _socket(new Socket(AF(cast(ushort)args[0].__num__),
-        								  ST(cast(int)args[1].__num__),
-        								  PT(cast(int)args[2].__num__)));
+        	return new _socket( new Socket(cast(AddressFamily)args[0].__num__,
+        						cast(SocketType)args[1].__num__,
+        						cast(ProtocolType)args[2].__num__ ));
+
         else if (args.length == 1)
         	if (toLower(args[0].__str__) == "udp")
         		return new _socket(new UdpSocket());
@@ -242,17 +206,19 @@ class _socket: LdOBJECT
         	"sendto": new _sendto(socket),
         	"recv": new _recv(socket),
 
+        	"setsockopt": new _setsockopt(socket),
+
         	"shutdown": new _shutdown(socket),
         	"close": new _close(socket),
 
         	"Ip": new LdStr(socket.hostName),
-        	"addr_family": new LdNum(cast(double)socket.addressFamily)
+        	"addr_family": new LdNum(cast(double)socket.addressFamily),
         ];
     }
    	
    	override LdOBJECT[string] __props__(){ return props; }
 
-	override string __str__(){ return "Socket (socket connection object)"; }
+	override string __str__(){ return format("socket.Socket (object af: %s)", socket.addressFamily); }
 }
 
 
@@ -313,7 +279,7 @@ class _blocking: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         socket.blocking = false;
-        return new LdNone();
+        return RETURN.A;
     }
 
     override string __str__() { return "blocking (Socket.socket method)"; }
@@ -327,7 +293,7 @@ class _nonblocking: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         socket.blocking = true;
-        return new LdNone();
+        return RETURN.A;
     }
 
     override string __str__() { return "non_blocking (Socket.socket method)"; }
@@ -354,7 +320,7 @@ class _send: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         socket.send(args[0].__chars__);
-        return new LdNone();
+        return RETURN.A;
     }
 
     override string __str__() { return "send (Socket.socket method)"; }
@@ -388,33 +354,29 @@ class _recv: LdOBJECT
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         auto data = socket.receive(buffer);
 
-        if (args.length)
-            return new LdChr(buffer[0 .. cast(uint)args[0].__num__]);
+        //if (args.length) {
+        //	size_t len = cast(size_t)args[0].__num__;
+
+        //	writeln(len, " ", data);
+
+        //	if(len == data)
+        //    	return new LdChr(buffer[0 .. len]);
+        //}
+
+        if(data == -1)
+        	return new LdChr([]);
+
+        else if (data == 0)
+        	throw new Exception("socketError: connection lost");
 
         return new LdChr(buffer[0 .. data]);
+
+        //return new LdChr([]);
     }
 
     override string __str__() { return "recv (Socket.socket method)"; }
 }
 
-
-SocketShutdown SD(int x)
-{
-    SocketShutdown t;
-
-    switch (x){
-    	case t.RECEIVE:
-	    	return t.RECEIVE;
-
-	    case t.SEND:
-	    	return t.SEND;
-
-	    default:
-	    	return t.BOTH;
-	}
-
-	return t.BOTH;
-}
 
 class _shutdown: LdOBJECT
 {
@@ -423,11 +385,11 @@ class _shutdown: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         if (args.length)
-            socket.shutdown(SD(cast(int)args[0].__num__)); 
+            socket.shutdown(cast(SocketShutdown)args[0].__num__); 
         else
         	socket.shutdown(SocketShutdown.BOTH);
 
-        return new LdNone();
+        return RETURN.A;
     }
 
     override string __str__() { return "shutdown (Socket.socket method)"; }
@@ -441,7 +403,7 @@ class _close: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         socket.close();
-        return new LdNone();
+        return RETURN.A;
     }
 
     override string __str__() { return "close (Socket.socket method)"; }
@@ -455,9 +417,9 @@ class _IsAlive: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         if (socket.isAlive())
-            return new LdTrue();
+            return RETURN.B;
 
-        return new LdFalse();
+        return RETURN.C;
     }
 
     override string __str__() { return "IsAlive (Socket.socket method)"; }
@@ -471,11 +433,30 @@ class _blocked: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         if (socket.blocking)
-            return new LdTrue();
+            return RETURN.B;
 
-        return new LdFalse();
+        return RETURN.C;
     }
 
     override string __str__() { return "blocked (Socket.socket method)"; }
+}
+
+
+class _setsockopt: LdOBJECT
+{
+    Socket socket;
+    this(Socket socket){ this.socket = socket; }
+
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+    	socket.setOption(
+    		cast(SocketOptionLevel)args[0].__num__,
+    		cast(SocketOption)args[1].__num__,
+    		cast(int)args[2].__num__
+    	);
+
+        return RETURN.A;
+    }
+
+    override string __str__() { return "setsockopt (Socket.socket method)"; }
 }
 

@@ -4,6 +4,7 @@ module lUrl;
 import std.net.curl;
 import std.typecons: Yes, No;
 import std.stdio;
+import std.format: format;
 
 import LdObject;
 

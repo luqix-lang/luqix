@@ -1,4 +1,30 @@
+socket = require('socket')
+bytes = require('bytes')
+str = require('string')
 
-x = 90
+hostname = 'localhost'
+port = 7070
 
-print(f'I am {x}o')
+sock = socket.Socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(hostname, port)
+
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+sock.listen(5)
+
+print(f'listen ast address http://{hostname}:{port}')
+
+while true { 
+	client = sock.accept()
+
+	msg = bytes.decode(client.recv(1024))
+
+	req = f'HTTP/1.1 200 OK\n\n\r\n\r\n<h1>{msg}</h1>'
+	client.send(str.encode(req))
+
+	client.shutdown()
+	client.close()
+}
+
+sock.close()
+

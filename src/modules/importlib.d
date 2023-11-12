@@ -64,7 +64,7 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"len": _locals_functions["len"],
 		"next": _locals_functions["next"],
 
-		"importc": _locals_functions["importc"],
+		"require": _locals_functions["require"],
 
 		"getattr": _locals_functions["getattr"],
 		"setattr": _locals_functions["setattr"],

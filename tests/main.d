@@ -1,23 +1,14 @@
-import std.stdio; 
-import std.stdio; 
-import std.concurrency; 
-import core.thread;
-  
-void worker(int a) { 
-   foreach (i; 0 .. 4) { 
-      //Thread.sleep(dur!"msecs"(1));
-      writeln("Worker Thread ",a + i); 
-   } 
-}
+import std.stdio;
+import std.socket;
 
 
-void main() { 
-   for(int i =0; i < 1000000; i++) { 
-      //Thread.sleep(dur!"msecs"(2));
-      writeln("Main Thread ",i);
+void main() {
+    InternetHost ih = new InternetHost;
 
-      spawn(&worker, i*5); 
-   }
-   
-   writeln("main is done.");  
+   ih.getHostByAddr("213.36.253.2");
+   writeln(ih.addrList);
+   writeln(ih.name);
+
+   //ih.getHostByAddr("127.0.0.1");
+   //writeln(ih.addrList[0]);
 }

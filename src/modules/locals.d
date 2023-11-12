@@ -44,7 +44,7 @@ static LdOBJECT[string] __locals_props__(){
 			"type": new _Type(),
 			"exit": new _Exit(),
 
-			"importc": new _Import(),
+			"require": new _Require(),
 			"StopIterator": new _StopIterator(),
 
 			"next": new _Next(),
@@ -167,7 +167,7 @@ LdOBJECT import_core_library(string X){
 }
 
 
-class _Import: LdOBJECT
+class _Require: LdOBJECT
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		string y = args[0].__str__;
@@ -187,7 +187,7 @@ class _Import: LdOBJECT
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "locals.importc (method)"; }
+	override string __str__(){ return "locals.require (method)"; }
 }
 
 

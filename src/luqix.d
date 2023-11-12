@@ -18,7 +18,7 @@ import importlib: __setImp__, _StartHeap;
 string _Console_Input(){
 	string code, a;
 
-	write("> ");
+	write(">> ");
 	a = strip(readln());
 
 	if(a.endsWith("{")) {
@@ -54,7 +54,7 @@ int _console(){
 	TOKEN[] tokens;
 	LdByte[] bcode;
 
-	writeln(" Luqix 0.6.1 (Nov 1 2023)\n check https://luqix-lang.github.io");
+	writeln(" Luqix 0.7.1 (Nov 12 2023)\n check https://luqix-lang.github.io");
 
 	while (true)
 	{
