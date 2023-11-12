@@ -197,9 +197,7 @@ class _socket: LdOBJECT
         	"connect": new _connect(socket),
 
         	"listen": new _listen(socket),
-
-        	"blocking": new _blocking(socket),
-        	"non_blocking": new _nonblocking(socket),
+        	"setblocking": new _setblocking(socket),
 
         	"accept": new _accept(socket),
         	"send": new _send(socket),
@@ -211,7 +209,7 @@ class _socket: LdOBJECT
         	"shutdown": new _shutdown(socket),
         	"close": new _close(socket),
 
-        	"Ip": new LdStr(socket.hostName),
+        	"hostname": new LdStr(socket.hostName),
         	"addr_family": new LdNum(cast(double)socket.addressFamily),
         ];
     }
@@ -272,32 +270,23 @@ class _listen: LdOBJECT
 }
 
 
-class _blocking: LdOBJECT
+class _setblocking: LdOBJECT
 {
     Socket socket;
     this(Socket socket){ this.socket = socket; }
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-        socket.blocking = false;
+        if(args[0].__true__)
+            socket.blocking = true;
+        else
+            socket.blocking = false;
+
         return RETURN.A;
     }
 
-    override string __str__() { return "blocking (Socket.socket method)"; }
+    override string __str__() { return "setblocking (Socket.socket method)"; }
 }
 
-
-class _nonblocking: LdOBJECT
-{
-    Socket socket;
-    this(Socket socket){ this.socket = socket; }
-
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-        socket.blocking = true;
-        return RETURN.A;
-    }
-
-    override string __str__() { return "non_blocking (Socket.socket method)"; }
-}
 
 
 class _accept: LdOBJECT
