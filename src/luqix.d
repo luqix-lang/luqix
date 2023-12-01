@@ -54,7 +54,7 @@ int _console(){
 	TOKEN[] tokens;
 	LdByte[] bcode;
 
-	writeln(" Luqix 0.7.1 (Nov 12 2023)\n check https://luqix-lang.github.io");
+	writeln(" Luqix 0.7.5 (Dec 1 2023)\n check https://luqix-lang.github.io");
 
 	while (true)
 	{
@@ -100,14 +100,14 @@ int _start(string[] args){
 		}
 
 	} else if(canFind(args, "-v"))
-		writeln("luqix 0.10.1");
+		writeln("luqix 0.7.5");
 
 	else if(canFind(args, "-e"))
 		writeln(thisExePath);
 
 	else if(canFind(args, "-h"))
 	{
-		writeln("luqix [0.10.3]
+		writeln("luqix [0.7.5]
 ...
 -e     : shows the luqix interpreter executable path
 -h     : returns this help message

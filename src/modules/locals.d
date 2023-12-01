@@ -45,10 +45,6 @@ static LdOBJECT[string] __locals_props__(){
 			"exit": new _Exit(),
 
 			"require": new _Require(),
-			"StopIterator": new _StopIterator(),
-
-			"next": new _Next(),
-			"iter": new _Iterator(),
 
 			"getattr": new _Getattr(),
 			"setattr": new _Setattr(),
@@ -313,41 +309,4 @@ class _Exit: LdOBJECT
 }
 
 
-LdOBJECT makeIterator(LdOBJECT i) {
-	if ("__next__" in i.__props__)
-		return i;
-
-	if(!("__iter__" in i.__props__))
-		throw new Exception("requires data that can be iterable.");
-
-	return i.__props__["__iter__"]([]);
-}
-
-
-class _Iterator: LdOBJECT 
-{
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		return makeIterator(args[0]);
-	}
-
-	override string __str__(){ return "locals.iter (method)"; } 
-}
-
-class _Next: LdOBJECT 
-{
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		return args[0].__props__["__next__"]([]);
-	}
-
-	override string __str__(){ return "locals.next (method)"; } 
-}
-
-class _StopIterator: LdOBJECT 
-{
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		return new LdStop_Iterator();
-	}
-
-	override string __str__(){ return "locals.StopIterator (method)"; } 
-}
 

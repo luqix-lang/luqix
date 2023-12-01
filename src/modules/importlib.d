@@ -62,16 +62,11 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"Exception": _locals_functions["Exception"],
 
 		"len": _locals_functions["len"],
-		"next": _locals_functions["next"],
-
 		"require": _locals_functions["require"],
 
 		"getattr": _locals_functions["getattr"],
 		"setattr": _locals_functions["setattr"],
 		"delattr": _locals_functions["delattr"],
-
-		"iter": _locals_functions["iter"],				
-		"StopIterator": _locals_functions["StopIterator"],
 	];
 
 	mwima.keys().each!(i => _StartHeap[i] = mwima[i]);

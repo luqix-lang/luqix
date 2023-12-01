@@ -230,8 +230,6 @@ class Op_While: LdByte {
 	}
 }
 
-import lLocals: makeIterator;
-
 
 class Op_For: LdByte {
 	string var;
