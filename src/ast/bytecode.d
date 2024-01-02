@@ -44,6 +44,20 @@ class Op_Var: LdByte {
 	}
 }
 
+class Op_Delvar: LdByte {
+	string[] vars;
+
+	this(string[] vars){
+		this.vars = vars;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		writeln(vars);
+		vars.each!(i => ((*_heap).remove(i)));
+		return RETURN.A;
+	}
+}
+
 
 class Op_Id: LdByte {
 	string key, file;
@@ -374,7 +388,7 @@ class Op_Try: LdByte {
 			
 		} catch (Exception e) {
 			if (handle) {
-				(*_heap)[handle] = new LdEnum("Error", ["msg": new LdStr(e.msg), "type": new LdStr("TypeError"), "line": new LdNum(0)]);
+				(*_heap)[handle] = new LdEnum("Error", ["message": new LdStr(e.msg), "type": new LdStr("TypeError"), "line": new LdNum(0)]);
 
 				new _Interpreter(code[1], _heap);
 			}

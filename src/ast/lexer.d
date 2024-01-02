@@ -1,7 +1,7 @@
 module LdLexer;
 
 import std.uni;
-import std.conv: to;
+import std.conv: to, parse;
 import std.range;
 import std.stdio;
 import std.array;
@@ -9,19 +9,23 @@ import std.digest;
 import std.algorithm;
 import std.typecons;
 
+import std.format: format;
+import std.string: toStringz;
+import core.stdc.stdlib: strtol;
+
 import LdNode: TOKEN;
 
 
 string letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@$";
 string keys =  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$@?!1234567890";
 string numbers = "1234567890";
-string numbs = "1234567890e.x_";
+string numbs = "1234567890e.xb_";
 string meters = "?;,({[]}):.";
 string expr = "=!<>";
 string aliases = "&|";
 string operators = "+-*/%";
 
-enum escaped_keys = ['r':'\r', 't':'\t', 'n':'\n', 'b':'\b', '\\':'\\', '0':'\0', 'a':'\a', 'f':'\f', 'v':'\v', '\'':'\'', '"': '\"', '`':'`', '?': '\?'];
+enum escaped_keys = ['r':'\r', 't':'\t', 'n':'\n', 'b':'\b', '\\':'\\', 'a':'\a', 'f':'\f', 'v':'\v', '\'':'\'', '"': '\"', '`':'`', '?': '\?'];
 
 
 class _Lex{
@@ -145,12 +149,15 @@ class _Lex{
 				_type = "FR"; break;
 			case "as":
 				_type = "AS"; break;
+			case "del":
+				_type = "DEL"; break;
 			case "class":
 				_type = "CL"; break;
 			case "let":
 				return;
 			default:
 				if (key == "r" && find("'\"", this.tok).length) {
+					writeln("me");
 					this.rString();
 					return;
 				}
@@ -192,12 +199,6 @@ class _Lex{
 		} else if (tok == '/') {
 			while (end && tok != '\n')
 				next;
-
-			this.tab = 0;
-			this.loc = -1;
-			
-			this.next();
-			this.line += 1;
 			
 		} else if (find("*", tok).length) {
 			if (OP == "/") {
@@ -290,6 +291,19 @@ class _Lex{
 		return zeros;
 	}
 
+	string get_binary_char(){
+		this.next();
+		string bin;
+
+		while (this.end && find("01", this.tok).length){
+			bin ~= this.tok;
+			this.next();
+		}
+
+		this.back();
+		return to!string(strtol(toStringz(bin), null, 2));
+	}
+
 	void pass(){}
 
 	void lex_number() {
@@ -304,6 +318,9 @@ class _Lex{
 
 			else if (this.tok == 'e')
 				num ~= get_exp_num();
+
+			else if (this.tok == 'b' && num == "0")
+				num ~= get_binary_char();
 
 			else
 				num ~= tok;
@@ -344,18 +361,29 @@ class _Lex{
 		return to!string(chunks(hex, 2).map!(i => cast(dchar)i.to!ubyte(16)).array);
 	}
 
-	string get_escaped(){
+	char get_escaped(){
 		next();
-		string str;
 
 		if (end) {
-			if (find("rtnb0afv?\\'\"", tok).length)
-				str ~= escaped_keys[tok];
+			if (find("rtnbafv?\\'\"", tok).length)
+				return escaped_keys[tok];
 
 			else if (tok == 'x')
-				str = get_hex_unicode();
+				return to!char(get_hex_unicode());
+
+			else if (canFind("01234567", tok)) {
+				string str;
+
+				while(end && (canFind("01234567", tok)) && (str.length < 4)) {
+					str ~= tok;
+					next();
+				}
+				back();
+				return cast(char)(to!int(str, 8));
+			}
 		}
-		return str;
+
+		return '\0';
 	}
 
 	string lex_string(){
@@ -371,9 +399,6 @@ class _Lex{
 			else if (this.tok == '\n') {
 				str ~= tok;
 				this.line += 1;
-
-				//this.tab = 0;
-				//this.loc = -1;
 			
 			} else 
 				str ~= this.tok;
@@ -421,12 +446,6 @@ class _Lex{
 
 		while (this.end && this.tok != '\n')
 			this.next();
-		
-		this.tab = 0;
-		this.loc = -1;
-		
-		next();
-		this.line += 1;
 	}
 
 	void spaces_indent(){
@@ -494,7 +513,7 @@ class _Lex{
 		if (TOKENS.length > 0){
 			TOKEN N = {"", "NL", tab, line, loc};
 			TOKENS ~= N;
-		}		
+		}
 	}
 }
 

@@ -59,14 +59,21 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"exit": _locals_functions["exit"],
 		"super": _locals_functions["super"],
 
+		"len": _locals_functions["len"],
 		"Exception": _locals_functions["Exception"],
 
-		"len": _locals_functions["len"],
+		"eval": _locals_functions["eval"],
+		"exec": _locals_functions["exec"],
 		"require": _locals_functions["require"],
 
 		"getattr": _locals_functions["getattr"],
 		"setattr": _locals_functions["setattr"],
 		"delattr": _locals_functions["delattr"],
+
+		"str": _locals_functions["str"],
+		"list": _locals_functions["list"],
+		"dict": _locals_functions["dict"],
+		"bytes": _locals_functions["bytes"],
 	];
 
 	mwima.keys().each!(i => _StartHeap[i] = mwima[i]);
@@ -120,8 +127,9 @@ void import_module(string[string] m, string[] save, HEAP* mem, uint line) {
 		if(!work.length)
 			throw new Exception(format("ImportError: module '%s' not found in sys.path.", m[i]));
 
-		if(isFile(work))
+		if(isFile(work)) {
 			mod = read_file_module([i, work, (*mem)["-file-"].__str__], line);
+		}
 		else if (isDir(work))
 			mod = read_dir_module([i, work, (*mem)["-file-"].__str__], line);
 		else

@@ -18,7 +18,6 @@ class oSys: LdOBJECT
 		this.props = [
 			"getvar": new Getvar(),
 			"setvar": new Setvar(),
-			"delvar": new Delvar(),
 
 			"argv": Getargv(argv),
 			"path": Getpath(),
@@ -68,16 +67,4 @@ class Setvar: LdOBJECT
     }
 
     override string __str__() { return "sys.setvar (method)"; }
-}
-
-class Delvar: LdOBJECT
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-    	if ((*mem).remove(args[0].__str__))
-    		return RETURN.B;
-
-    	return RETURN.C;
-    }
-
-    override string __str__() { return "sys.delvar (method)"; }
 }

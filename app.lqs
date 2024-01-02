@@ -1,23 +1,8 @@
-bytes = require('bytes')
-list = require('list')
 
-
-class ByteArray {
-	fn __init__(data)
-		self.data = data
-
-	fn decode()
-		return bytes.byte_array(self.data).decode()
-
-	fn append(val)
-		list.append(self.data, val)
-
-	fn extend(ls)
-		list.extend(self.data, ls)
+fn hello(name){
+  fmt = str.capitalize(name)
+  return f"Hello {fmt}"
 }
 
-cl = ByteArray([64, 65, 66, 67, 68])
-print(cl.decode())
-
-cl.extend([69, 70, 100])
-print(cl.decode())
+user = prompt("Name: ")
+print(hello(user))

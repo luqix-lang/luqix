@@ -230,6 +230,10 @@ class _GenInter {
 		bytez ~= water(this.leaf);
 	}
 
+	void gen_delvar(){
+		bytez ~= new Op_Delvar(this.leaf.args);
+	}
+
 	void gen_objdef() {
 		LdByte[] herits;
 		string[] attrs;
@@ -373,6 +377,9 @@ class _GenInter {
 					break;
 				case 30:
 					gen_addFls();
+					break;
+				case 40:
+					gen_delvar();
 					break;
 				default:
 					bytez ~= water(leaf);

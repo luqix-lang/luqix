@@ -34,7 +34,7 @@ class oFile: LdOBJECT
 
 	override LdOBJECT[string] __props__(){ return props; }
 
-	override string __str__(){ return "File (IO handling unit)"; }
+	override string __str__(){ return "file (native module)"; }
 }
 
 class _Read: LdOBJECT 
@@ -163,25 +163,16 @@ class _OpenFile: LdOBJECT
 			"write": new _write(x, mode),
 			"writeline": new _writeline(x, mode),
 
-			"closed": new _Closed(x),
+			"isopen": new _IsOpen(x),
 		];
 	}
 
-	override Heap __hash__(){ return props; }
+	override LdOBJECT[string] __props__(){ return props; }
 
-    override LdOBJECT __getProp__(string prop){
-        return props[prop];
-    }
-
-    override LdOBJECT __setProp__(string prop, LdOBJECT value){
-        props[prop] = value;
-        return new LdOBJECT();
-    }
-
-	override string __str__(){ return format("io-stream (name='%s' mode='%s'", name, mode); }
+	override string __str__(){ return format("io-stream (name='%s' mode='%s')", name, mode); }
 }
 
-class _Closed: LdOBJECT 
+class _IsOpen: LdOBJECT 
 {
 	File x;
 	this(File x){ this.x = x; }
@@ -193,7 +184,7 @@ class _Closed: LdOBJECT
 		return new LdTrue();
     }
 
-    override string __str__() { return "closed (io-stream object method)"; }
+    override string __str__() { return "isopen (io-stream object method)"; }
 }
 
 class _flush: LdOBJECT 

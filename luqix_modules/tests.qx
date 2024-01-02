@@ -1,9 +1,0 @@
-function sing(){
-	print(v)
-}
-
-function core(){
-	sing()
-}
-
-print(t)

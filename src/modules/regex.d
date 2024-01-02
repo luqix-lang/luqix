@@ -29,7 +29,7 @@ class oRegex: LdOBJECT
 
 	override LdOBJECT[string] __props__(){ return props; }
 
-	override string __str__(){ return "reg (native module)"; }
+	override string __str__(){ return "regex (native module)"; }
 }
 
 
@@ -43,7 +43,7 @@ class _Findall: LdOBJECT
         return new LdArr(found);
     }
 
-    override string __str__() { return "reg.findall (method)"; }
+    override string __str__() { return "regex.findall (method)"; }
 }
 
 
@@ -62,7 +62,7 @@ class _Split: LdOBJECT
         return new LdArr(found);
     }
 
-    override string __str__() { return "reg.split (method)"; }
+    override string __str__() { return "regex.split (method)"; }
 }
 
 class _Substitute: LdOBJECT 
@@ -85,7 +85,7 @@ class _Substitute: LdOBJECT
         return new LdStr(replaceAll(args[1].__str__, regex(args[0].__str__), args[2].__str__));
     }
 
-    override string __str__() { return "reg.sub (method)"; }
+    override string __str__() { return "regex.sub (method)"; }
 }
 
 
@@ -98,7 +98,7 @@ class _Search: LdOBJECT
         return RETURN.B;
     }
 
-    override string __str__() { return "reg.search (method)"; }
+    override string __str__() { return "regex.search (method)"; }
 }
 
 
@@ -108,5 +108,5 @@ class _Escape: LdOBJECT
         return new LdStr(to!string(escaper(args[0].__str__)));
     }
 
-    override string __str__() { return "reg.escape (method)"; }
+    override string __str__() { return "regex.escape (method)"; }
 }

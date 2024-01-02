@@ -13,6 +13,13 @@ import core.stdc.stdlib: exit;
 
 import LdObject;
 
+// included to locals
+import lList: oList;
+import lDict: oDict;
+
+import LdString: oStr;
+import LdChar: oBytes;
+
 alias LdOBJECT[string] HEAP; 
 
 
@@ -44,11 +51,18 @@ static LdOBJECT[string] __locals_props__(){
 			"type": new _Type(),
 			"exit": new _Exit(),
 
+			"eval": new _Eval(),
+			"exec": new _Exec(),
 			"require": new _Require(),
 
 			"getattr": new _Getattr(),
 			"setattr": new _Setattr(),
 			"delattr": new _Delattr(),
+
+			"str": new oStr(),
+			"list": new oList(),
+			"dict": new oDict(),
+			"bytes": new oBytes(),
 		];
 }
 
@@ -68,7 +82,6 @@ class _Print: LdOBJECT
 
 	override string __str__(){ return "locals.print (method)"; }
 }
-
 
 
 // importing core modules
@@ -93,21 +106,14 @@ import lRandom: oRandom;
 import lRegex: oRegex;
 import lProcess: oSubProcess;
 
-import lList: oList;
-import lDict: oDict;
-
-import LdString: oStr;
-import LdChar: oBytes;
-
 import Os: oS;
 import Websock: oWebsock;
 
 import lUrl: oUrl;
 import lThread: oThread;
-//import lSqlite3: oSqlite3;
 
 
-const string[] _Core_Lib = ["base64", "bytes", "locals", "dict", "dtypes", "file", "json", "list", "math", "number", "os", "parallelism", "path", "process", "random", "reg", "socket", "string", "sys", "sqlite3", "thread", "time", "url", "websocket"];
+const string[] _Core_Lib = ["base64", "locals", "dtypes", "file", "json", "math", "number", "os", "parallelism", "path", "process", "random", "regex", "socket", "sys", "sqlite3", "thread", "time", "url", "websock"];
 
 LdOBJECT[string] Required_Lib;
 
@@ -124,24 +130,16 @@ LdOBJECT import_core_library(string X){
 			return new oJson();
 		case "path":
 			return new oPath();
-		case "reg":
+		case "regex":
 			return new oRegex();
 		case "random":
 			return new oRandom();
 		case "socket":
 			return new oSocket();
-		case "string":
-			return new oStr();
-		case "list":
-			return new oList();
 		case "number":
 			return new oNumber();
-		case "dict":
-			return new oDict();
 		case "process":
 			return new oSubProcess();
-		case "bytes":
-			return new oBytes();
 		case "thread":
 			return new oThread();
 		case "parallelism":
@@ -155,7 +153,7 @@ LdOBJECT import_core_library(string X){
 			return new oS();
 		case "url":
 			return new oUrl();
-		case "websocket":
+		case "websock":
 			return new oWebsock();
 		default:
 			return new oMath();
@@ -256,11 +254,33 @@ class _Type: LdOBJECT
 }
 
 
+import std.algorithm.comparison: cmp;
+
+string[] sort_strings(string[] n) {
+    string temp;
+
+    for(size_t i = 0; i < (n.length-1); i++){
+        size_t n_min = i;
+
+        for(size_t j = i + 1; j < n.length; j++)
+            if (cmp(n[j], n[n_min]) < 0){
+                n_min = j;
+            }
+
+        if (n_min != i) {
+            temp = n[i];
+            n[i] = n[n_min];
+            n[n_min] = temp;
+        }
+    }
+    return n;
+}
+
 class _Attr: LdOBJECT 
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		LdOBJECT[] arr;
-		args[0].__props__.keys().each!(i => arr ~= new LdStr(i));
+		(sort_strings(args[0].__props__.keys())).each!(i => arr ~= new LdStr(i));
 		return new LdArr(arr);
 	}
 
@@ -309,4 +329,39 @@ class _Exit: LdOBJECT
 }
 
 
+import LdParser, LdNode, LdBytes, LdIntermediate, LdExec;
+import LdLexer: _Lex;
+
+
+TOKEN[] man_tokens(string code) {
+	TOKEN[] toks;
+
+	TOKEN A = {"#eval", "ID", 0, 1, 1}; toks ~= A;
+	TOKEN B = {"=", "=", 0, 1, 1}; toks ~= B;
+
+	return (toks ~ new _Lex(code).TOKENS);
+}
+
+class _Eval: LdOBJECT
+{
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null) {
+		LdByte[] bin = new _GenInter ( new _Parse( man_tokens(args[0].__str__), "eval.io" ).ast ).bytez;
+
+		return (*(new _Interpreter(bin, mem).heap))["#eval"];
+	}
+
+	override string __str__(){ return "locals.eval (method)"; }
+}
+
+class _Exec: LdOBJECT
+{
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null) {
+		LdByte[] bin = new _GenInter ( new _Parse( new _Lex(args[0].__str__).TOKENS, "eval.io" ).ast ).bytez;
+		new _Interpreter(bin, mem);
+
+		return RETURN.A;
+	}
+
+	override string __str__(){ return "locals.exec (method)"; }
+}
 

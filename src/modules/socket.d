@@ -111,14 +111,6 @@ class GetAdrrInfo: LdOBJECT {
     		return new LdStr(addr[0].toAddrString);
 
     	return new LdStr(addr[op_len-1].toAddrString);
-
-        //foreach(i; getAddressInfo(args[0].__str__, args[1].__str__))
-        //	info ~= new LdArr([new LdNum(i.family), new LdNum(i.type), new LdNum(i.protocol), new LdStr(i.canonicalName), new LdArr([
-        //			new LdStr(i.address.toAddrString),
-        //			new LdNum(to!double(i.address.toPortString)),
-        //		])]);
-
-        ////return new LdArr(info);
     }
 
     override string __str__() { return "socket.getaddrinfo (method)"; }
@@ -161,26 +153,26 @@ class new_socket: LdOBJECT
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         if (args.length == 2)
-        	return new _socket(new Socket( cast(AddressFamily)args[0].__num__,
+        	return new _socket_obj(new Socket( cast(AddressFamily)args[0].__num__,
         								   cast(SocketType)args[1].__num__) );
 
         else if (args.length > 2)
-        	return new _socket( new Socket(cast(AddressFamily)args[0].__num__,
-        						cast(SocketType)args[1].__num__,
-        						cast(ProtocolType)args[2].__num__ ));
+        	return new _socket_obj( new Socket( cast(AddressFamily)args[0].__num__,
+        						            cast(SocketType)args[1].__num__,
+        						            cast(ProtocolType)args[2].__num__ ) );
 
         else if (args.length == 1)
         	if (toLower(args[0].__str__) == "udp")
-        		return new _socket(new UdpSocket());
+        		return new _socket_obj(new UdpSocket());
         
-        return new _socket(new TcpSocket());
+        return new _socket_obj(new TcpSocket());
     }
 
     override string __str__() { return "socket.Socket (object)";}
 }
 
 
-class _socket: LdOBJECT
+class _socket_obj: LdOBJECT
 {
     HEAP props;
     Socket socket;
@@ -229,7 +221,7 @@ class _bind: LdOBJECT
         if (args.length > 1)
             socket.bind(new InternetAddress(args[0].__str__, cast(ushort)args[1].__num__));
        	else
-        	throw new Exception("socket.bind requires a 'host-name' and a 'port-number'.");
+        	throw new Exception("socket.bind takes a 'host-name' and 'port-number'.");
 
         return RETURN.A;
     }
@@ -247,7 +239,7 @@ class _connect: LdOBJECT
         if (args.length > 1)
             this.socket.connect(new InternetAddress(args[0].__str__, cast(ushort)args[1].__num__));
        	else
-        	throw new Exception("socket.connect requires a 'host-name' and a 'port-number'.");
+        	throw new Exception("socket.connect takes a 'host-name' and 'port-number'.");
 
         return RETURN.A;
     }
@@ -295,7 +287,7 @@ class _accept: LdOBJECT
     this(Socket socket){ this.socket = socket; }
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-        return new _socket(socket.accept());
+        return new _socket_obj(socket.accept());
     }
 
     override string __str__() { return "accept (Socket.socket method)"; }
@@ -343,24 +335,13 @@ class _recv: LdOBJECT
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
         auto data = socket.receive(buffer);
 
-        //if (args.length) {
-        //	size_t len = cast(size_t)args[0].__num__;
-
-        //	writeln(len, " ", data);
-
-        //	if(len == data)
-        //    	return new LdChr(buffer[0 .. len]);
-        //}
-
         if(data == -1)
         	return new LdChr([]);
 
         else if (data == 0)
-        	throw new Exception("socketError: connection lost");
+        	throw new Exception("socketError: remote side closed connection.");
 
         return new LdChr(buffer[0 .. data]);
-
-        //return new LdChr([]);
     }
 
     override string __str__() { return "recv (Socket.socket method)"; }

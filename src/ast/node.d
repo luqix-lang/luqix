@@ -24,6 +24,7 @@ struct TOKEN{
 // 18	for
 // 21	break
 // 26	id
+// 27	format
 // 28	assign
 // 30	include
 // 31	true
@@ -34,6 +35,7 @@ struct TOKEN{
 // 37	.getattr_functional
 // 38   enum
 // 39   throw
+// 40   delete variable
 
 class Node{
 	string str(){ return "undef"; }
@@ -422,6 +424,22 @@ class ReturnNode: Node{
 
 	override int type(){
 		return 12;
+	}
+}
+
+class DelNode: Node{
+	string[] vars;
+
+	this(string[] vars){
+		this.vars = vars;
+	}
+
+	override string[] args() {
+		return vars;
+	}
+
+	override int type(){
+		return 40;
 	}
 }
 

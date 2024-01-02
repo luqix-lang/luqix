@@ -31,11 +31,11 @@ class oWebsock: LdOBJECT {
 	}
 
 	override string __type__(){
-		return "websocket module";
+		return "websock module";
 	}
 
 	override LdOBJECT[string] __props__(){ return props; }
-	override string __str__(){ return "websocket (native module)"; }
+	override string __str__(){ return "websock (native module)"; }
 }
 
 
@@ -43,7 +43,7 @@ class _WebsocketServer: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
     	return new _Websocket(args[0].__str__, cast(ushort)args[1].__num__);
     }
-    override string __str__() { return "websocket.WebsocketServer (type)";}
+    override string __str__() { return "websock.WebsocketServer (type)";}
 }
 
 
@@ -150,7 +150,7 @@ class _Websocket: LdOBJECT {
 		return props;
 	}
 
-	override string __str__(){ return "websocket.Open (object)"; }
+	override string __str__(){ return "websock.Open (object)"; }
 }
 
 
@@ -234,7 +234,7 @@ class _Send: LdOBJECT {
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "send (websocket.Open method)"; }
+	override string __str__(){ return "send (websock.Open method)"; }
 }
 
 class _Onopen: LdOBJECT {
@@ -249,7 +249,7 @@ class _Onopen: LdOBJECT {
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "onopen (websocket.Open method)"; }
+	override string __str__(){ return "onopen (websock.Open method)"; }
 }
 
 class _Onmessage: LdOBJECT {
@@ -267,7 +267,7 @@ class _Onmessage: LdOBJECT {
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "onmessage (websocket.Open method)"; }
+	override string __str__(){ return "onmessage (websock.Open method)"; }
 }
 
 class _Start: LdOBJECT {
@@ -290,5 +290,5 @@ class _Start: LdOBJECT {
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "start (websocket.Open method)"; }
+	override string __str__(){ return "start (websock.Open method)"; }
 }

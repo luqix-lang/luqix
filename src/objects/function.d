@@ -42,7 +42,6 @@ class LdFn: LdOBJECT {
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-
 		if(args.length < params.length){
 			size_t def = def_length - (params.length-args.length);
 
@@ -55,8 +54,12 @@ class LdFn: LdOBJECT {
 			args = args ~ defaults[def .. def_length];
 		}
 
+		// resetting for new function
 		auto point = this.heap.dup;
 		point["self"] = props["self"];
+		point["#rt"] = RETURN.A;
+		point["#rtd"] = RETURN.B;
+		point["#bk"] = RETURN.B;
 
 		for(size_t i = 0; i < params.length; i++)
 			point[params[i]] = args[i];

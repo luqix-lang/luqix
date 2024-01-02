@@ -14,6 +14,7 @@ import std.conv: to;
 
 import std.algorithm.iteration: map, each;
 import std.algorithm.searching: endsWith, startsWith, count, find;
+import std.algorithm.comparison: cmp;
 
 import LdObject;
 
@@ -69,6 +70,8 @@ class oStr: LdOBJECT
 
             "isdigit": new _IsDigit(),
             "isprintable": new _IsPrintable(),
+
+            "sort": new _Sort(),
         ];
     }
 
@@ -404,4 +407,32 @@ class _IsSpace: LdOBJECT {
     override string __str__() { return "string.isspace (method)"; }
 }
 
+
+void sort_list(LdOBJECT[] n) {
+    LdOBJECT temp;
+
+    for(size_t i = 0; i < (n.length-1); i++){
+        size_t n_min = i;
+
+        for(size_t j = i + 1; j < n.length; j++)
+            if (cmp(n[j].__str__, n[n_min].__str__) < 0){
+                n_min = j;
+            }
+
+        if (n_min != i) {
+            temp = n[i];
+            n[i] = n[n_min];
+            n[n_min] = temp;
+        }
+    }
+}
+
+
+class _Sort: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        sort_list(args[0].__array__);
+        return RETURN.B;
+    }
+    override string __str__() { return "string.sort (method)"; }
+}
 

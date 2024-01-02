@@ -4,6 +4,9 @@ module lList;
 import std.stdio;
 
 import std.algorithm.mutation: remove, reverse;
+import std.algorithm.searching: any;
+import std.algorithm.sorting: sort;
+
 import std.array: insertInPlace;
 
 import LdObject;
@@ -29,6 +32,9 @@ class oList: LdOBJECT
             
             "index": new _Index(),
             "reverse": new _Reverse(),
+
+            "sort": new _Sort(),
+            "contains": new _Contains(),
         ];
     }
 
@@ -127,12 +133,12 @@ class _Reverse: LdOBJECT {
 class _Pop: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
     	LdOBJECT[] *l = args[0].__ptr__;
-    	uint i;
+    	size_t i;
 
     	if (args.length > 1)
-    		i = cast(uint)args[1].__num__;
+    		i = cast(size_t)args[1].__num__;
     	else
-    		i = cast(uint)((*l).length)-1;
+    		i = cast(size_t)((*l).length)-1;
 
         // keeping popped item
 		auto popped = (*l)[i];
@@ -146,3 +152,52 @@ class _Pop: LdOBJECT {
 
     override string __str__() { return "list.pop (method)"; }
 }
+
+
+void sorter(LdOBJECT[] n) {
+    LdOBJECT temp;
+    
+    for(size_t i = 0; i < (n.length-1); i++){
+        size_t n_min = i;
+
+        for(size_t j = i + 1; j < n.length; j++)
+            if (n[j].__num__ < n[n_min].__num__)
+                n_min = j;
+
+        if (n_min != i) {
+            temp = n[i];
+            n[i] = n[n_min];
+            n[n_min] = temp;
+        }
+    }
+
+}
+
+class _Sort: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        sorter(args[0].__array__);
+        return RETURN.A;
+    }
+
+    override string __str__() { return "list.pop (method)"; }
+}
+
+
+
+class _Contains: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        //auto l = args[0].__array__;
+        auto key = args[1];
+        string _type = key.__type__;
+
+        foreach(LdOBJECT i; args[0].__array__) {
+            if (i.__type__ == _type && i.__str__ == key.__str__)
+                return RETURN.B;       
+        }
+
+        return RETURN.C;
+    }
+
+    override string __str__() { return "list.contains (method)"; }
+}
+

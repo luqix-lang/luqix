@@ -46,6 +46,6 @@ class _Min: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
         return new LdNum(min(args[0].__num__, args[1].__num__));
     }
-    override string __str__() { return "number.min (method)"; }
+    override string __str__() { return "number.lin (method)"; }
 }
 

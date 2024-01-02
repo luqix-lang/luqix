@@ -1,11 +1,13 @@
 module LdObject;
 
 import std.stdio;
-
 import std.conv: to;
+
+import std.string: chomp;
 import std.format: format;
-import std.algorithm.iteration: map;
+
 import std.array: join;
+import std.algorithm.iteration: map;
 
 import std.json: JSONValue, toJSON;
 
@@ -67,6 +69,7 @@ class LdOBJECT {
 	}
 
 	double __true__() { return 0; }
+
 }
 
 alias LdOBJECT[string] HEAP;
@@ -92,7 +95,7 @@ class LdFalse: LdOBJECT{
 }
 
 class LdNone: LdOBJECT {
-	override string __type__(){ return "null"; }
+	override string __type__(){ return "none"; }
 	override string __str__(){ return "none"; }
 }
 
@@ -148,7 +151,8 @@ class LdChr: LdOBJECT
     }
 
 	override string __str__(){
-		return cast(string)_chars;
+		//return cast(string)_chars;
+		return "b'"~cast(string)_chars~'\'';
 	}
 
 	override double __true__(){
@@ -195,7 +199,7 @@ class LdHsh: LdOBJECT
 		foreach(k, v; hash)
 			view ~= format(" %s: %s,", k, v.__json__);
 
-		return view ~ " }";
+		return chomp(view, ",") ~ " }";
 	}
 
 	override LdOBJECT[string] __hash__(){ return hash; }
@@ -299,4 +303,5 @@ class LdStr: LdOBJECT
         //return toJSON(js);
         return '\''~_str~'\'';
     }
+
 }

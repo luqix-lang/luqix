@@ -574,22 +574,22 @@ class _Parse{
 	}
 
 	void parse_identifier() {
-		string id = tok.value;
+		TOKEN id = tok;
 		next();
 
 		if (tok.type == "="){
 			this.next();
 
 			Node expr = this.eval("NL;");
-			this.ast ~= new VarNode(id, expr);
+			this.ast ~= new VarNode(id.value, expr);
 
-		} else if (find(".([", tok.type).length) {
+		} else if (canFind(".([ANDORNOT==<=>=!=IN+-*/%", tok.type)) {
 			this.prev();
 			this.ast ~= eval("NL;");
 			this.next();
 
 		} else if (find("NL;", tok.type).length){
-			this.next();
+			this.ast ~= new IdNode([id.value, this.file], id.line, id.loc);
 
 		} else if (find("AA", tok.type).length){
 			this.prev();
@@ -600,7 +600,7 @@ class _Parse{
 			next();
 
 			Node expr = eval("NL;");
-			this.ast ~= new VarNode(id, new BinaryNode(Val, op, expr));
+			this.ast ~= new VarNode(id.value, new BinaryNode(Val, op, expr));
 
 		} else {
 			this.SyntaxError("Unexpected syntax '" ~ this.tok.value ~ "' after ID token.");
@@ -644,13 +644,31 @@ class _Parse{
 		this.next();
 	}
 
+	void parse_delvar(){
+		this.next();
+		string[] vars;
+
+		while (end && !canFind("NL;", this.tok.type)) {
+			if (this.tok.type == "ID")
+				vars ~= this.tok.value;
+			else if (tok.type == ","){}
+			else
+				SyntaxError(format("Unexpected syntax, expected 'variable name' not token '%s'", tok.type));
+
+			next();
+		}
+
+		next();
+		this.ast ~= new DelNode(vars);
+	}
+
 	void parse_if(){
 		bool repeat = false;
 		Node expr;
 		Node[] statements;
 
 		while (this.end){
-			if (find("ELIFELSE", this.tok.type).length){
+			if (canFind("ELIFELSE", this.tok.type)){
 				if (this.tok.type == "ELSE"){
 					expr = new NumOp(1);
 					this.next();
@@ -869,7 +887,7 @@ class _Parse{
 			next();
 		}
 		if (tok.type != "IM")
-			SyntaxError(format("Expected an 'import' token not '%s'.", tok.value));
+			SyntaxError(format("Expected an 'import' statement next not '%s'.", tok.value));
 		this.next();
 
 		string[string] attrs;
@@ -890,14 +908,14 @@ class _Parse{
 				next();
 
 				if(tok.type != "ID")
-					SyntaxError(format("Expected token '%s' after 'as', it should be an ID.", tok.value));
+					SyntaxError(format("Expected '%s' after 'as', must be a pronoun.", tok.value));
 
 				attrs[at] = tok.value;
 				order ~= at;
 				next();
 			
 			} else if (tok.type != ",")
-				SyntaxError(format("Expected token '%s' after 'import', it should be an ID separated by ','.", tok.value));
+				SyntaxError(format("Expected '%s' after 'import', must be a pronoun separated by ','.", tok.value));
 			else
 				next();
 		}
@@ -963,6 +981,9 @@ class _Parse{
 				this.ast ~= new ContinueNode();
 				this.next();
 
+			} else if (this.tok.type == "DEL") {
+				this.parse_delvar();
+
 			} else if (this.tok.type == "FN") {
 				this.parse_function();
 
@@ -984,7 +1005,11 @@ class _Parse{
 			} else if (this.tok.type == "THROW") {
 				this.parse_throw();
 
-			} else {
+			} else if ((this.tok.type == "NL") | (this.tok.type == ";")){
+				this.next();
+
+			}else {
+				this.ast ~= this.eval("NL;");
 				this.next();
 			}
 		}
