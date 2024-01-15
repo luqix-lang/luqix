@@ -10,8 +10,8 @@ import std.algorithm;
 import std.typecons;
 
 import std.format: format;
-import std.string: toStringz;
-import core.stdc.stdlib: strtol;
+import std.string: toStringz, chomp;
+import core.stdc.stdlib: strtol, exit;
 
 import LdNode: TOKEN;
 
@@ -21,8 +21,8 @@ string keys =  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$@?!1234567
 string numbers = "1234567890";
 string numbs = "1234567890e.xb_";
 string meters = "?;,({[]}):.";
-string expr = "=!<>";
-string aliases = "&|";
+string cmp = "=!<>";
+string bitwise = "&|^";
 string operators = "+-*/%";
 
 enum escaped_keys = ['r':'\r', 't':'\t', 'n':'\n', 'b':'\b', '\\':'\\', 'a':'\a', 'f':'\f', 'v':'\v', '\'':'\'', '"': '\"', '`':'`', '?': '\?'];
@@ -241,24 +241,19 @@ class _Lex{
 		TOKENS ~= N;
 	}
 
-	void lex_expr(){
-		string _op;  _op ~= tok;
-		this.next();
+	void lex_cmp(){
+		string op;  op ~= tok;
+		next();
 
-		if (tok == '='){
-			this.next();
+		if (canFind(cmp, tok))
+			op = op~tok;
+		else
+			back();
 
-			TOKEN N = {_op~'=', _op~'=', tab, line, loc};
-			TOKENS ~= N;
+		TOKEN N = { op, op, tab, line, loc};
+		TOKENS ~= N;
 
-		} else if (_op == "!") {
-			TOKEN N = {_op, "NOT", tab, line, loc};
-			TOKENS ~= N;
-
-		} else {
-			TOKEN N = {_op, _op, tab, line, loc};
-			TOKENS ~= N;
-		}
+		next();
 	}
 
 	string get_hexidecimal(){
@@ -332,22 +327,13 @@ class _Lex{
 		TOKENS ~= N;
 	}
 
-	void Aliases(){
-		string op;  op ~= tok;
-		this.next();
+	void Bitwise(){
+		string OP; OP ~= tok;
 
-		if (find("&|", tok).length){
-			op ~= tok;
-			next();
-		}
-
-		string _type = "OR";
-
-		if (op == "&&")
-			_type = "AND";
-
-		TOKEN N = {op, _type, tab, line, loc};
+		TOKEN N = {OP, OP, tab, line, loc-1};
 		TOKENS ~= N;
+
+		this.next();
 	}
 
 	string get_hex_unicode(){
@@ -494,11 +480,11 @@ class _Lex{
 			} else if (this.tok == '\\')
 				skip_char();
 
-			else if (find("&|", this.tok).length)
-				this.Aliases();
+			else if (find(bitwise, this.tok).length)
+				this.Bitwise();
 
-			else if (find(expr, this.tok).length)
-				this.lex_expr();
+			else if (find(cmp, this.tok).length)
+				this.lex_cmp();
 
 			else if (this.tok == '#')
 				hash_comment();
@@ -514,6 +500,11 @@ class _Lex{
 			TOKEN N = {"", "NL", tab, line, loc};
 			TOKENS ~= N;
 		}
+
+		//foreach(i; TOKENS)
+		//	writeln(i.type);
+
+		//exit(0);
 	}
 }
 

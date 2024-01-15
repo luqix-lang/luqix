@@ -409,6 +409,9 @@ class _IsSpace: LdOBJECT {
 
 
 void sort_list(LdOBJECT[] n) {
+    if(!n.length)
+        return;
+    
     LdOBJECT temp;
 
     for(size_t i = 0; i < (n.length-1); i++){

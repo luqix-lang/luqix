@@ -1,8 +1,5 @@
+let base64 = require('base64')
 
-fn hello(name){
-  fmt = str.capitalize(name)
-  return f"Hello {fmt}"
-}
+j = list(bytes(str.encode('Hello')))
 
-user = prompt("Name: ")
-print(hello(user))
+print(j)

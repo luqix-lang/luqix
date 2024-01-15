@@ -74,6 +74,7 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"list": _locals_functions["list"],
 		"dict": _locals_functions["dict"],
 		"bytes": _locals_functions["bytes"],
+		"numb": _locals_functions["numb"],
 	];
 
 	mwima.keys().each!(i => _StartHeap[i] = mwima[i]);

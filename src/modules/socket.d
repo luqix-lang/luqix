@@ -226,7 +226,7 @@ class _bind: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "bind (Socket.socket method)"; }
+    override string __str__() { return "bind (socket.Socket method)"; }
 }
 
 
@@ -244,7 +244,7 @@ class _connect: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "connect (Socket.socket method)"; }
+    override string __str__() { return "connect (socket.Socket method)"; }
 }
 
 
@@ -258,7 +258,7 @@ class _listen: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "listen (Socket.socket method)"; }
+    override string __str__() { return "listen (socket.Socket method)"; }
 }
 
 
@@ -276,7 +276,7 @@ class _setblocking: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "setblocking (Socket.socket method)"; }
+    override string __str__() { return "setblocking (socket.Socket method)"; }
 }
 
 
@@ -290,7 +290,7 @@ class _accept: LdOBJECT
         return new _socket_obj(socket.accept());
     }
 
-    override string __str__() { return "accept (Socket.socket method)"; }
+    override string __str__() { return "accept (socket.Socket method)"; }
 }
 
 
@@ -304,7 +304,7 @@ class _send: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "send (Socket.socket method)"; }
+    override string __str__() { return "send (socket.Socket method)"; }
 }
 
 
@@ -318,7 +318,7 @@ class _sendto: LdOBJECT
         return new LdNone();
     }
 
-    override string __str__() { return "sendto (Socket.socket method)"; }
+    override string __str__() { return "sendto (socket.Socket method)"; }
 }
 
 
@@ -344,7 +344,7 @@ class _recv: LdOBJECT
         return new LdChr(buffer[0 .. data]);
     }
 
-    override string __str__() { return "recv (Socket.socket method)"; }
+    override string __str__() { return "recv (socket.Socket method)"; }
 }
 
 
@@ -362,7 +362,7 @@ class _shutdown: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "shutdown (Socket.socket method)"; }
+    override string __str__() { return "shutdown (socket.Socket method)"; }
 }
 
 
@@ -376,7 +376,7 @@ class _close: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "close (Socket.socket method)"; }
+    override string __str__() { return "close (socket.Socket method)"; }
 }
 
 
@@ -392,7 +392,7 @@ class _IsAlive: LdOBJECT
         return RETURN.C;
     }
 
-    override string __str__() { return "IsAlive (Socket.socket method)"; }
+    override string __str__() { return "IsAlive (socket.Socket method)"; }
 }
 
 
@@ -408,7 +408,7 @@ class _blocked: LdOBJECT
         return RETURN.C;
     }
 
-    override string __str__() { return "blocked (Socket.socket method)"; }
+    override string __str__() { return "blocked (socket.Socket method)"; }
 }
 
 
@@ -427,6 +427,6 @@ class _setsockopt: LdOBJECT
         return RETURN.A;
     }
 
-    override string __str__() { return "setsockopt (Socket.socket method)"; }
+    override string __str__() { return "setsockopt (socket.Socket method)"; }
 }
 

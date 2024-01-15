@@ -64,6 +64,21 @@ class _GenInter {
 		else if (op == ">=")
 			return new Op_Gequals(left, right);
 
+		else if (op == "|")
+			return new Op_B_OR(left, right);
+
+		else if (op == "&")
+			return new Op_B_AND(left, right);
+
+		else if (op == "^")
+			return new Op_B_XOR(left, right);
+
+		else if (op == "<<")
+			return new Op_B_Lshift(left, right);
+
+		else if (op == ">>")
+			return new Op_B_Rshift(left, right);
+
 		return right;
 	}
 

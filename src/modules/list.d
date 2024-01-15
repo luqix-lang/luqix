@@ -2,12 +2,14 @@ module lList;
 
 
 import std.stdio;
+import std.conv: to;
 
 import std.algorithm.mutation: remove, reverse;
 import std.algorithm.searching: any;
 import std.algorithm.sorting: sort;
+import std.algorithm.iteration: map;
 
-import std.array: insertInPlace;
+import std.array: insertInPlace, array;
 
 import LdObject;
 
@@ -39,13 +41,30 @@ class oList: LdOBJECT
     }
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        return new LdStr("");
+        if (!args.length)
+            return new LdArr([]);
+
+        return to_lqs_list(args[0]);
     }
 
     override LdOBJECT[string] __props__(){ return props; }
 
     override string __str__(){ return "list (native module)"; }
 }
+
+LdOBJECT to_lqs_list(LdOBJECT i){
+    if (i.__type__ == "string")
+        return new LdArr(cast(LdOBJECT[])(i.__str__).map!(x => new LdStr(to!string(x))).array);
+
+    else if (i.__type__ == "bytes")
+        return new LdArr(cast(LdOBJECT[])(i.__chars__).map!(x => new LdNum(x)).array);
+
+    else if (i.__type__ == "dict")
+        return new LdArr(cast(LdOBJECT[])(i.__hash__.keys).map!(x => new LdStr(x)).array);
+
+    return i;
+}
+
 
 
 class _Join: LdOBJECT {
@@ -155,6 +174,9 @@ class _Pop: LdOBJECT {
 
 
 void sorter(LdOBJECT[] n) {
+    if(!n.length)
+        return;
+    
     LdOBJECT temp;
     
     for(size_t i = 0; i < (n.length-1); i++){
@@ -170,7 +192,6 @@ void sorter(LdOBJECT[] n) {
             n[n_min] = temp;
         }
     }
-
 }
 
 class _Sort: LdOBJECT {

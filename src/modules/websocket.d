@@ -27,23 +27,23 @@ class oWebsock: LdOBJECT {
 	HEAP props;
 
 	this(){
-		this.props = [ "WebsocketServer": new _WebsocketServer(),];
+		this.props = [ "Websocket": new _WebsocketServer(),];
 	}
 
 	override string __type__(){
-		return "websock module";
+		return "websocket module";
 	}
 
 	override LdOBJECT[string] __props__(){ return props; }
-	override string __str__(){ return "websock (native module)"; }
+	override string __str__(){ return "websocket (native module)"; }
 }
 
 
 class _WebsocketServer: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-    	return new _Websocket(args[0].__str__, cast(ushort)args[1].__num__);
+    	return new _Websocket();
     }
-    override string __str__() { return "websock.WebsocketServer (type)";}
+    override string __str__() { return "websocket.Websocket (type)";}
 }
 
 
@@ -59,55 +59,42 @@ class _Websocket: LdOBJECT {
 	HEAP*[] onmessage_file;
 	uint[] onmessage_line;
 
-	this(string hostname, ushort port){
+	this(){
 		this.client = client;
+		this.ws = new TcpSocket();
 
-		version (all) {
-			this.ws = new TcpSocket();
-			this.ws.bind(new InternetAddress(hostname, port));
-
-			this.ws.blocking = true;
-			this.ws.listen(1);
-		}
-
-		this.onopen = onopen;
 
 		version(all){
+			this.onopen = onopen;
 			this.onmessage = onmessage;
 			this.onmessage_file = onmessage_file;
 			this.onmessage_line = onmessage_line;
 		}
 
 		this.props = [
-			"hostname": new LdStr(hostname),
-			"port": new LdNum(port),
+			"on": new _wsOn_event(this),
+			"connect": new _wsConnect(this),
 
-			"onopen": new _Onopen(this),
-			"onmessage": new _Onmessage(this),
+			"send": new _wsSend(this),
+			"start": new _wsStart(this),
 
-			"send": new _Send(this),
-			"start": new _Start(this),
+			"close": new _wsClose(this),
 		];
 	}
 
 	void event_listener(){
-		while (true) {
-			char[BUFF_SIZE] buf;
-			auto len = this.client.receive(buf);
+		char[BUFF_SIZE] buffer;
 
-			if (len > 0)
-				on_message(buf[0..len]);
-			else {
-				writeln("ERROR: Maybe frontend disconnected or encounted an error.");
+		while (true) {
+			auto len = this.client.receive(buffer);
+
+			if (len <= 0) {
+				writeln("ERROR: websocket client disconnected or encounted an error.");
 				break;
 			}
+			
+			this.on_message(buffer[0..len]);
 		}
-
-		this.client.shutdown(SocketShutdown.BOTH);
-		this.client.close();
-
-		this.ws.shutdown(SocketShutdown.BOTH);
-		this.ws.close();
 	}
 
 	void on_message(char[] data){
@@ -138,73 +125,46 @@ class _Websocket: LdOBJECT {
         for (size_t i = 0; i < msglen; ++i)
             decoded[i] = cast(ubyte)(bytes[offset + i] ^ masks[i % 4]);
 
-        LdOBJECT[1] ret = [new LdEnum("ws-event", ["data": new LdChr(cast(char[])decoded)])];
+        LdOBJECT processed = new LdChr(cast(char[])decoded);
 
         // executing callback onmessage functions
-        for(size_t i =0; i < onmessage.length; i++){
-        	onmessage[i](ret, onmessage_line[i], onmessage_file[i]);
-    	}
+        for(size_t i=0; i < onmessage.length; i++)
+        	onmessage[i]([processed], onmessage_line[i], onmessage_file[i]);
+ 
     }
 
 	override LdOBJECT[string] __props__(){
 		return props;
 	}
 
-	override string __str__(){ return "websock.Open (object)"; }
+	override string __str__(){ return "websocket.Websocket (object)"; }
 }
 
 
-Socket _Acceptor(Socket ws){
+class _wsConnect: LdOBJECT {
+	_Websocket ws;
 
-	// handle connected address / host
-	Socket client = ws.accept();
-
-	while (true) {
-		char[] msg;
-		char[BUFF_SIZE] buf;
-
-		auto data = client.receive(buf);
-		msg = buf[0..data];
-
-		auto sec = match(cast(string)msg, "Sec-WebSocket-Key: (.*)");
-	    string swka;
-	    
-	    bool wbSocket = false;
-
-		foreach(i; sec){
-	    	if(i.length > 1){
-	    		wbSocket = true;
-	    		swka = i[1];
-	    	}
-	    	break;
-	    }
-
-	    if (wbSocket){
-		    swka ~= "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-		    
-		    ubyte[20] swkaSha1 = sha1Of(swka);
-		    string swkaSha1Base64 = Base64.encode(swkaSha1);
-
-		    string res = (
-		        "HTTP/1.1 101 Switching Protocols\r\n" ~
-		        "Connection: Upgrade\r\n" ~
-		        "Upgrade: websocket\r\n" ~
-		        "Sec-WebSocket-Accept: " ~ swkaSha1Base64 ~ 
-		        "\r\n\r\n"
-		    );
-
-			client.send(cast(char[])res);				
-			break;
-		}
+	this(_Websocket ws){
+		this.ws = ws;
 	}
 
-	return client;
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+		this.ws.ws.bind(new InternetAddress(args[0].__str__, cast(ushort)args[1].__num__));
+			 ws.ws.blocking = true;
+			 ws.ws.listen(1);
+
+		ws.props["hostname"] = new LdStr(args[0].__str__);
+		ws.props["port"] = new LdNum(args[1].__num__);
+
+		return RETURN.A;
+	}
+
+	override string __str__(){ return "connect (websocket.Websocket method)"; }
 }
 
 
-class _Send: LdOBJECT {
+class _wsSend: LdOBJECT {
 	_Websocket ws;
-	Socket client;
 
 	this (_Websocket ws){
 		this.ws = ws;
@@ -237,7 +197,8 @@ class _Send: LdOBJECT {
 	override string __str__(){ return "send (websock.Open method)"; }
 }
 
-class _Onopen: LdOBJECT {
+
+class _wsOn_event: LdOBJECT {
 	_Websocket ws;
 
 	this (_Websocket ws){
@@ -245,46 +206,61 @@ class _Onopen: LdOBJECT {
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		ws.onopen ~= args[0];
-		return RETURN.A;
-	}
 
-	override string __str__(){ return "onopen (websock.Open method)"; }
-}
-
-class _Onmessage: LdOBJECT {
-	_Websocket ws;
-
-	this (_Websocket ws){
-		this.ws = ws;
-	}
-
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		ws.onmessage ~= args[0];
-		ws.onmessage_file ~= mem;
-		ws.onmessage_line ~= line;
-
-		return RETURN.A;
-	}
-
-	override string __str__(){ return "onmessage (websock.Open method)"; }
-}
-
-class _Start: LdOBJECT {
-	_Websocket ws;
-
-	this (_Websocket ws){
-		this.ws = ws;
-	}
-
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		version (all) {
-			this.ws.client = _Acceptor(this.ws.ws);
-
-			// executing callback onopen functions
-			foreach(LdOBJECT i; ws.onopen)
-				i([], line, mem);
+		if (args[0].__str__ == "open")
+			ws.onopen ~= args[1];
+		else{
+			ws.onmessage ~= args[1];
+			ws.onmessage_file ~= mem;
+			ws.onmessage_line ~= line;
 		}
+
+		return RETURN.A;
+	}
+
+	override string __str__(){ return "on (websocket.Websocket method)"; }
+}
+
+
+class _wsClose: LdOBJECT {
+	_Websocket ws;
+
+	this (_Websocket ws){
+		this.ws = ws;
+	}
+
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+		this.ws.client.shutdown(SocketShutdown.BOTH);
+		ws.client.close();
+
+		ws.ws.shutdown(SocketShutdown.BOTH);
+		ws.ws.close();
+
+		return RETURN.A;
+	}
+
+	override string __str__(){ return "close (websocket.Websocket method)"; }
+}
+
+
+class _wsStart: LdOBJECT {
+	_Websocket ws;
+
+	this (_Websocket ws){
+		this.ws = ws;
+	}
+
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+		string http_version = "1.1";
+
+		if (args.length)
+			http_version = args[0].__str__;
+
+		this.ws.client = Connect_with_client(this.ws.ws, http_version);
+
+		// executing callback onopen functions
+		foreach(LdOBJECT i; ws.onopen)
+			i([], line, mem);
 
 		this.ws.event_listener();
 		return RETURN.A;
@@ -292,3 +268,50 @@ class _Start: LdOBJECT {
 
 	override string __str__(){ return "start (websock.Open method)"; }
 }
+
+
+Socket Connect_with_client(Socket ws, string http_version){
+	char[] msg;
+	char[BUFF_SIZE] buffer;
+
+	// get client websocket
+	Socket client = ws.accept();
+
+	auto data = client.receive(buffer);
+	msg = buffer[0..data];
+
+	auto sec = match(cast(string)msg, "Sec-WebSocket-Key: (.*)");
+    string swka;
+    
+    bool valid_ws = false;
+
+	foreach(i; sec){
+    	if(i.length > 1){
+    		valid_ws = true;
+    		swka = i[1];
+    	}
+    	break;
+    }
+
+    if (valid_ws){
+	    swka ~= "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	    
+	    ubyte[20] swkaSha1 = sha1Of(swka);
+	    string swkaSha1Base64 = Base64.encode(swkaSha1);
+
+	    string res = (
+	        format("HTTP/%s 101 Switching Protocols\r\n", http_version) ~
+	        "Connection: Upgrade\r\n" ~
+	        "Upgrade: websocket\r\n" ~
+	        "Sec-WebSocket-Accept: " ~ swkaSha1Base64 ~ 
+	        "\r\n\r\n"
+	    );
+
+		client.send(cast(char[])res);				
+
+	} else
+		throw new Exception("websocketError: aborted, client didn't show websockets supports.");
+
+	return client;
+}
+

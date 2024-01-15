@@ -43,7 +43,7 @@ class _Read: LdOBJECT
        	return new LdStr(readText(args[0].__str__));
     }
 
-    override string __str__() { return "read (File method)"; }
+    override string __str__() { return "file.read (method)"; }
 }
 
 class _Readbin: LdOBJECT 
@@ -56,52 +56,44 @@ class _Readbin: LdOBJECT
 		return new LdChr(cast(char[])read(args[0].__str__));
     }
 
-    override string __str__() { return "readbin (File method)"; }
+    override string __str__() { return "file.readbin (method)"; }
 }
 
 class _Write: LdOBJECT 
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	if(args.length > 1)
-    		write(args[0].__str__, args[1].__str__);
-       	
-       	return new LdNone();
+    	write(args[0].__str__, args[1].__str__);
+       	return RETURN.A;
     }
 
-    override string __str__() { return "write (File method)"; }
+    override string __str__() { return "file.write (method)"; }
 }
 
 class _Writebin: LdOBJECT 
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	if(args.length > 1)
-       		write(args[0].__str__, args[1].__chars__);
-		
-		return new LdNone();
+       	write(args[0].__str__, args[1].__chars__);
+		return RETURN.A;
     }
 
-    override string __str__() { return "writebin (File method)"; }
+    override string __str__() { return "file.writebin (method)"; }
 }
 
 class _Append: LdOBJECT 
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	if(args.length > 1)
-    		append(args[0].__str__, args[1].__str__);
-       	
-       	return new LdNone();
+    	append(args[0].__str__, args[1].__str__);
+       	return RETURN.A;
     }
 
-    override string __str__() { return "append (File method)"; }
+    override string __str__() { return "file.append (method)"; }
 }
 
 class _Appendbin: LdOBJECT 
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	if(args.length > 1)
-       		append(args[0].__str__, args[1].__chars__);
-		
-		return new LdNone();
+       	append(args[0].__str__, args[1].__chars__);
+		return RETURN.A;
     }
 
     override string __str__() { return "appendbin (File method)"; }
@@ -142,7 +134,7 @@ class _OpenFile: LdOBJECT
 		this.x = File(name, mode);
 
 		this.props = [
-			"_CHUNK_SIZE": new LdNum(8192),
+			"read_size": new LdNum(8192),
 
 			"name": new LdStr(name),
 			"mode": new LdStr(mode),
@@ -169,7 +161,7 @@ class _OpenFile: LdOBJECT
 
 	override LdOBJECT[string] __props__(){ return props; }
 
-	override string __str__(){ return format("io-stream (name='%s' mode='%s')", name, mode); }
+	override string __str__(){ return format("file.Open %s' mode='%s')", name, mode); }
 }
 
 class _IsOpen: LdOBJECT 
@@ -179,12 +171,12 @@ class _IsOpen: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
     	if (x.isOpen)
-			return new LdFalse();
+			return RETURN.C;
 		
-		return new LdTrue();
+		return RETURN.B;
     }
 
-    override string __str__() { return "isopen (io-stream object method)"; }
+    override string __str__() { return "isopen (file.Open method)"; }
 }
 
 class _flush: LdOBJECT 
@@ -194,10 +186,10 @@ class _flush: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
     	x.flush();
-		return new LdNone();
+		return RETURN.A;
     }
 
-    override string __str__() { return "flush (io-stream object method)"; }
+    override string __str__() { return "flush (file.Open method)"; }
 }
 
 class _size: LdOBJECT 
@@ -209,7 +201,7 @@ class _size: LdOBJECT
 		return new LdNum(x.size);
     }
 
-    override string __str__() { return "size (io-stream object method)"; }
+    override string __str__() { return "size (file.Open method)"; }
 }
 
 class _tell: LdOBJECT 
@@ -221,7 +213,7 @@ class _tell: LdOBJECT
 		return new LdNum(x.tell);
     }
 
-    override string __str__() { return "tell (io-stream object method)"; }
+    override string __str__() { return "tell (file.Open method)"; }
 }
 
 class _close: LdOBJECT 
@@ -231,10 +223,10 @@ class _close: LdOBJECT
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
     	x.close();
-		return new LdNone();
+		return RETURN.A;
     }
 
-    override string __str__() { return "close (io-stream object method)"; }
+    override string __str__() { return "close (file.Open method)"; }
 }
 
 class _read: LdOBJECT 
@@ -264,7 +256,7 @@ class _read: LdOBJECT
     	return new LdStr(cast(string)data[0..len]);
     }
 
-    override string __str__() { return "read (io-stream object method)"; }
+    override string __str__() { return "read (file.Open method)"; }
 }
 
 class _chunks: LdOBJECT 
@@ -276,7 +268,7 @@ class _chunks: LdOBJECT
 	}
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	size_t chunk = cast(uint)x.props["_CHUNK_SIZE"].__num__;
+    	size_t chunk = cast(uint)x.props["read_size"].__num__;
 
     	if(args.length)
     		chunk = cast(uint)args[0].__num__;
@@ -294,7 +286,7 @@ class _chunks: LdOBJECT
 		return new LdStr(i);
     }
 
-    override string __str__() { return "chunks (io-stream object method)"; }
+    override string __str__() { return "chunks (file.Open method)"; }
 }
 
 
@@ -321,7 +313,7 @@ class _readline: LdOBJECT
     	return new LdStr(cast(string)buf);
     }
 
-    override string __str__() { return "readline (io-stream object method)"; }
+    override string __str__() { return "readline (file.Open method)"; }
 }
 
 class _write: LdOBJECT 
@@ -339,10 +331,10 @@ class _write: LdOBJECT
     	else
     		x.write(args[0].__str__);
 
-		return new LdNone();
+		return RETURN.A;
     }
 
-    override string __str__() { return "write (io-stream object method)"; }
+    override string __str__() { return "write (file.Open method)"; }
 }
 
 class _writeline: LdOBJECT 
@@ -360,10 +352,10 @@ class _writeline: LdOBJECT
     	else
     		x.writeln(args[0].__str__);
 
-		return new LdNone();
+		return RETURN.A;
     }
 
-    override string __str__() { return "writeline (io-stream object method)"; }
+    override string __str__() { return "writeline (file.Open method)"; }
 }
 
 class _seek: LdOBJECT 
@@ -372,14 +364,13 @@ class _seek: LdOBJECT
 	this(File x){ this.x = x; }
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
-    	if (args.length)
-			if (args.length == 1)
-				x.seek(cast(uint)args[0].__num__, 2);
-			else
-				x.seek(cast(uint)args[0].__num__, cast(int)args[1].__num__);
+		if (args.length == 1)
+			x.seek(cast(uint)args[0].__num__, 2);
+		else
+			x.seek(cast(uint)args[0].__num__, cast(int)args[1].__num__);
 
-		return new LdNone();
+		return RETURN.A;
     }
 
-    override string __str__() { return "seek (io-stream object method)"; }
+    override string __str__() { return "seek (file.Open method)"; }
 }

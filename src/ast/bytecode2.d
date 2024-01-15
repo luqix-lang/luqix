@@ -175,6 +175,72 @@ class Op_Gequals: LdByte {
 	}
 }
 
+class Op_B_AND: LdByte {
+	LdByte left, right;
+
+	this(LdByte left, LdByte right){
+		this.left = left;
+		this.right = right;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		return new LdNum(((cast(int)left(_heap).__num__)) & (cast(int)(right(_heap).__num__)));
+	}
+}
+
+class Op_B_OR: LdByte {
+	LdByte left, right;
+
+	this(LdByte left, LdByte right){
+		this.left = left;
+		this.right = right;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		return new LdNum(((cast(int)left(_heap).__num__)) | (cast(int)(right(_heap).__num__)));
+	}
+}
+
+class Op_B_XOR: LdByte {
+	LdByte left, right;
+
+	this(LdByte left, LdByte right){
+		this.left = left;
+		this.right = right;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		return new LdNum(((cast(int)left(_heap).__num__)) ^ (cast(int)(right(_heap).__num__)));
+	}
+}
+
+class Op_B_Lshift: LdByte {
+	LdByte left, right;
+
+	this(LdByte left, LdByte right){
+		this.left = left;
+		this.right = right;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		return new LdNum(((cast(int)left(_heap).__num__)) << (cast(int)(right(_heap).__num__)));
+	}
+}
+
+class Op_B_Rshift: LdByte {
+	LdByte left, right;
+
+	this(LdByte left, LdByte right){
+		this.left = left;
+		this.right = right;
+	}
+
+	override LdOBJECT opCall(HEAP* _heap) {
+		return new LdNum(((cast(int)left(_heap).__num__)) >> (cast(int)(right(_heap).__num__)));
+	}
+}
+
+
 class Op_NOTequals: LdByte {
 	LdByte left, right;
 
@@ -371,7 +437,8 @@ class Op_PdotAssign: LdByte {
 	}
 
 	override LdOBJECT opCall(HEAP* _heap) {
-		return obj(_heap).__setProp__(prop, value(_heap));
+		obj(_heap).__setProp__(prop, value(_heap));
+		return RETURN.A;
 	}
 }
 

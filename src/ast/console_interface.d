@@ -17,6 +17,9 @@ import importlib: _StartHeap;
 import std.string: strip;
 
 
+immutable char[5] lqs_version = "0.9.3";
+
+
 string color_dict(LdOBJECT val){
 	string view = "{";
 
@@ -86,7 +89,7 @@ void start_cmdline(){
 
 	(*_Heap)["-file-"] = new LdStr("stdin");
 
-	writeln("Hey, am luqix v0.9.2.\nAt start, Type '--help' for more information");
+	writeln(format("Luqix %s unstable\n@2024 Luqix-lang.github.io, Variable Code", lqs_version));
 	string code;
 
 	while (true) {
@@ -103,38 +106,43 @@ void start_cmdline(){
 				if ("-console-" in *_Heap) {
 					auto val = (*_Heap)["-console-"];
 
-					if (val.__type__ != "null") {
+					if (val.__type__ != "none") {
 						version (Windows)
 							writeln(val.__str__);
-						else {
-							if(val.__type__ != "none")
-								writeln(color_console(val));
-						}
+						else
+							writeln(color_console(val));
 					}
 
 					(*_Heap).remove("-console-");
 				}
 			}
 		} 
-		catch (Exception e)
-			writeln("\033[1;31mError\033[0m: ", e.msg);
+		catch (Exception e){
+			version (Windows)
+				writeln("Error: ", e.msg);
+			else
+				writeln("\033[1;31mError\033[0m: ", e.msg);
+		}
 	}
 }
 
 
 void cmd_executor(string[] args, string baseFile){
 	 if(canFind(args, "--version"))
-		writeln("luqix 0.9.2");
+		writeln(format("luqix %s", lqs_version));
 
 	else if(canFind(args, "--exec"))
 		writeln(thisExePath);
 
+	else if(canFind(args, "--date"))
+		writeln("15 Jan 2024, 5:30 pm");
+
 	else if(canFind(args, "--help")) {
-		writeln("luqix [0.9.2]
+		writeln(format("luqix [%s]
 ..
 --exec     Returns luqix interpreter executable
 --help     Returns this help message
---version  Returns version installed" );
+--version  Returns version installed", lqs_version) );
 
 	} else
 		writef("luqix: \033[1;31mError\033[0m '%s': [Errno 2] No such file\n", baseFile);

@@ -16,6 +16,7 @@ import LdObject;
 // included to locals
 import lList: oList;
 import lDict: oDict;
+import lNumber: oNumber;
 
 import LdString: oStr;
 import LdChar: oBytes;
@@ -63,6 +64,7 @@ static LdOBJECT[string] __locals_props__(){
 			"list": new oList(),
 			"dict": new oDict(),
 			"bytes": new oBytes(),
+			"numb": new oNumber(),
 		];
 }
 
@@ -98,8 +100,6 @@ import lPath: oPath;
 
 import lParallelism: oParallel;
 
-import lNumber: oNumber;
-
 import lDtypes: oDtypes;
 import lRandom: oRandom;
 
@@ -113,7 +113,7 @@ import lUrl: oUrl;
 import lThread: oThread;
 
 
-const string[] _Core_Lib = ["base64", "locals", "dtypes", "file", "json", "math", "number", "os", "parallelism", "path", "process", "random", "regex", "socket", "sys", "sqlite3", "thread", "time", "url", "websock"];
+const string[] _Core_Lib = ["base64", "locals", "dtypes", "file", "json", "math", "os", "parallelism", "path", "process", "random", "regex", "socket", "sys", "sqlite3", "thread", "time", "url", "websocket"];
 
 LdOBJECT[string] Required_Lib;
 
@@ -136,8 +136,6 @@ LdOBJECT import_core_library(string X){
 			return new oRandom();
 		case "socket":
 			return new oSocket();
-		case "number":
-			return new oNumber();
 		case "process":
 			return new oSubProcess();
 		case "thread":
@@ -146,14 +144,13 @@ LdOBJECT import_core_library(string X){
 			return new oParallel();
 		case "sqlite3":
 			return RETURN.A;
-			//return new oSqlite3();
 		case "time":
 			return new oTime();
 		case "os":
 			return new oS();
 		case "url":
 			return new oUrl();
-		case "websock":
+		case "websocket":
 			return new oWebsock();
 		default:
 			return new oMath();
@@ -176,7 +173,7 @@ class _Require: LdOBJECT
 			return x;
 		}
 
-		throw new Exception(format("RequireError: core module '%s' not found", y));
+		throw new Exception(format("RequireError: native module '%s' not found", y));
 
 		return RETURN.A;
 	}
@@ -257,6 +254,9 @@ class _Type: LdOBJECT
 import std.algorithm.comparison: cmp;
 
 string[] sort_strings(string[] n) {
+	if (!n.length)
+		return n;
+
     string temp;
 
     for(size_t i = 0; i < (n.length-1); i++){

@@ -305,6 +305,26 @@ class _Parse{
 		return new FunctionNode(["-name-less-", format("%s:%d", this.file, tok.line)] ~ this.getParams(), this.defaults, new _Parse(this.getCode(), this.file).ast);
 	}
 
+	Node negative_data(){
+		string op = tok.type;
+		this.next();
+
+		Node ret;
+
+		if (tok.type == "ID")
+			ret = new IdNode([tok.value, this.file], tok.line, tok.loc);
+
+		else if (tok.type == "NUM") {
+			double number = to!double(tok.value);
+			ret = new NumOp(number);
+
+		} else{
+			SyntaxError("invalid token '" ~ tok.type ~"' after -/+ sign");
+		}
+
+		return new BinaryNode(new NumOp(0), op, ret);
+	}
+
 	Node factor(string end){
 		Node ret;
 		if (tok.type == "ID")
@@ -341,10 +361,13 @@ class _Parse{
 		else if (tok.type == "FMT")
 			ret = formatdata();
 		
-		else if (tok.type == "IF"){
+		else if (tok.type == "IF")
 			ret = assignNode(end);
-		
-		} else if (tok.type == "?") {
+
+		else if (canFind("-+", tok.type))
+			ret = negative_data();
+
+		else if (tok.type == "?") {
 			ret = unknownFnNode();
 			prev();
 
@@ -382,7 +405,7 @@ class _Parse{
 	Node term(string end){
 		Node val = this.factor(end);
 
-		while (this.end && find("*/%", this.tok.type).length){
+		while (this.end && canFind("*/%", this.tok.type)){
 			string op = this.tok.type;
 			this.next();
 
@@ -396,7 +419,7 @@ class _Parse{
 	Node expr(string end){
 		Node val = this.term(end);
 
-		while (this.end && find("+-", this.tok.type).length){
+		while (this.end && canFind("+-", this.tok.type)){
 			string op = this.tok.type;
 			this.next();
 
@@ -410,7 +433,7 @@ class _Parse{
 	Node eqexpr(string end){
 		Node val = this.expr(end);
 
-		while (this.end && find("==<=>=!=IN", this.tok.type).length){
+		while (this.end && find("==<=>=!=IN^&|<<>>", this.tok.type).length){
 			string op = this.tok.type;
 			this.next();
 
@@ -426,7 +449,6 @@ class _Parse{
 			string op = this.tok.type;
 			this.next();
 			return new BinaryNode(new StrOp(""), op, this.eqexpr(end)); 
-		
 		}
 
 		return this.eqexpr(end);
