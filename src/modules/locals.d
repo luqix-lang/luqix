@@ -11,7 +11,17 @@ import std.format: format;
 import core.stdc.stdio: printf;
 import core.stdc.stdlib: exit;
 
+import LdParser, LdNode, LdBytes, LdIntermediate, LdExec;
+import LdLexer: _Lex;
+
+import std.algorithm.comparison: cmp;
+import std.file: exists, isFile, readText;
+
+import std.path: absolutePath;
+
 import LdObject;
+import importlib: _StartHeap, LdModule, imported_modules, circular, Circular, cache;
+
 
 // included to locals
 import lList: oList;
@@ -47,7 +57,7 @@ static LdOBJECT[string] __locals_props__(){
 			"Exception": new _Exception(),
 
 			"len": new _Len(),
-			"attr": new _Attr(),
+			"readAttributes": new _ReadAttributes(),
 
 			"type": new _Type(),
 			"exit": new _Exit(),
@@ -56,9 +66,9 @@ static LdOBJECT[string] __locals_props__(){
 			"exec": new _Exec(),
 			"require": new _Require(),
 
-			"getattr": new _Getattr(),
-			"setattr": new _Setattr(),
-			"delattr": new _Delattr(),
+			"getAttribute": new _GetAttribute(),
+			"setAttribute": new _SetAttribute(),
+			"deleteAttribute": new _DeleteAttribute(),
 
 			"str": new oStr(),
 			"list": new oList(),
@@ -93,12 +103,12 @@ import lBase64: oBase64;
 
 import lMath: oMath;
 import lSocket: oSocket;
-import lFile: oFile;
+import lFs: oFs;
 
 import lJson: oJson;
 import lPath: oPath;
 
-import lParallelism: oParallel;
+import lPromises: oPromises;
 
 import lDtypes: oDtypes;
 import lRandom: oRandom;
@@ -113,7 +123,7 @@ import lUrl: oUrl;
 import lThread: oThread;
 
 
-const string[] _Core_Lib = ["base64", "locals", "dtypes", "file", "json", "math", "os", "parallelism", "path", "process", "random", "regex", "socket", "sys", "sqlite3", "thread", "time", "url", "websocket"];
+const string[] _Core_Lib = ["base64", "locals", "dtypes", "fs", "json", "math", "os", "promises", "path", "process", "random", "regex", "socket", "sys", "sqlite3", "thread", "time", "url", "websocket"];
 
 LdOBJECT[string] Required_Lib;
 
@@ -124,8 +134,8 @@ LdOBJECT import_core_library(string X){
 			return new oBase64();
 		case "dtypes":
 			return new oDtypes();
-		case "file":
-			return new oFile();
+		case "fs":
+			return new oFs();
 		case "json":
 			return new oJson();
 		case "path":
@@ -140,8 +150,8 @@ LdOBJECT import_core_library(string X){
 			return new oSubProcess();
 		case "thread":
 			return new oThread();
-		case "parallelism":
-			return new oParallel();
+		case "promises":
+			return new oPromises();
 		case "sqlite3":
 			return RETURN.A;
 		case "time":
@@ -155,30 +165,6 @@ LdOBJECT import_core_library(string X){
 		default:
 			return new oMath();
 	}
-}
-
-
-class _Require: LdOBJECT
-{
-	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		string y = args[0].__str__;
-
-		if (y in Required_Lib)
-			return Required_Lib[y];
-
-		if (find(_Core_Lib, y).length) {
-			auto x = import_core_library(y);
-			Required_Lib[y] = x;
-
-			return x;
-		}
-
-		throw new Exception(format("RequireError: native module '%s' not found", y));
-
-		return RETURN.A;
-	}
-
-	override string __str__(){ return "locals.require (method)"; }
 }
 
 
@@ -218,7 +204,7 @@ class _Exception: LdOBJECT
 	}
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
-		LdOBJECT[string] formal = ["msg":new LdStr(_file), "type":new LdStr(_type), "line":new LdNum(_line)];
+		LdOBJECT[string] formal = ["message":new LdStr(_file), "type":new LdStr(_type), "line":new LdNum(_line)];
 
 		if (args.length) {
 			foreach(k,l; args[0].__props__)
@@ -251,8 +237,6 @@ class _Type: LdOBJECT
 }
 
 
-import std.algorithm.comparison: cmp;
-
 string[] sort_strings(string[] n) {
 	if (!n.length)
 		return n;
@@ -276,7 +260,7 @@ string[] sort_strings(string[] n) {
     return n;
 }
 
-class _Attr: LdOBJECT 
+class _ReadAttributes: LdOBJECT 
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		LdOBJECT[] arr;
@@ -284,37 +268,37 @@ class _Attr: LdOBJECT
 		return new LdArr(arr);
 	}
 
-	override string __str__(){ return "locals.attr (method)"; } 
+	override string __str__(){ return "locals.readAttributes (method)"; } 
 }
 
 
-class _Getattr: LdOBJECT 
+class _GetAttribute: LdOBJECT 
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		return args[0].__getProp__(args[1].__str__);
 	}
 
-	override string __str__(){ return "locals.getattr (method)"; } 
+	override string __str__(){ return "locals.getAttribute (method)"; } 
 }
 
-class _Setattr: LdOBJECT 
+class _SetAttribute: LdOBJECT 
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		args[0].__setProp__(args[1].__str__, args[2]);
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "locals.setattr (method)"; } 
+	override string __str__(){ return "locals.setAttribute (method)"; } 
 }
 
-class _Delattr: LdOBJECT 
+class _DeleteAttribute: LdOBJECT 
 {
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
 		args[0].__deleteProp__(args[1].__str__);
 		return RETURN.A;
 	}
 
-	override string __str__(){ return "locals.delattr (method)"; } 
+	override string __str__(){ return "locals.deleteAttribute (method)"; } 
 }
 
 
@@ -329,8 +313,6 @@ class _Exit: LdOBJECT
 }
 
 
-import LdParser, LdNode, LdBytes, LdIntermediate, LdExec;
-import LdLexer: _Lex;
 
 
 TOKEN[] man_tokens(string code) {
@@ -363,5 +345,53 @@ class _Exec: LdOBJECT
 	}
 
 	override string __str__(){ return "locals.exec (method)"; }
+}
+
+//string 
+
+
+class _Require: LdOBJECT
+{
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null) {
+		string importFile = args[0].__str__;
+
+		if (!(exists(importFile) && isFile(importFile))) {
+			if (importFile in Required_Lib)
+				return Required_Lib[importFile];
+
+			if (find(_Core_Lib, importFile).length) {
+				auto x = import_core_library(importFile);
+				Required_Lib[importFile] = x;
+
+				return x;
+			}
+
+			throw new Exception(format("RequireError: native module '%s' not found", importFile));
+		}
+
+		string fullFilePath = absolutePath(importFile);
+
+		if (fullFilePath in imported_modules)
+			return imported_modules[fullFilePath];
+
+		if(circular(fullFilePath)) {
+			HEAP _scope = _StartHeap.dup;
+			_scope["-file-"] = new LdStr(fullFilePath);
+
+			LdByte[] bin = new _GenInter ( new _Parse( new _Lex(readText(fullFilePath)).TOKENS, fullFilePath ).ast ).bytez;
+
+			auto fetchedImport = new LdModule(importFile, fullFilePath, *(new _Interpreter(bin, &_scope).heap));
+
+			cache(fullFilePath, fetchedImport);
+			return fetchedImport;
+		}
+
+		auto fetchedImport = new LdModule(importFile, fullFilePath, ["__path__": new LdStr(fullFilePath), "__module__":RETURN.A]);
+		Circular[fullFilePath] ~= fetchedImport;
+
+		return fetchedImport;
+	}
+
+	override string __str__(){ return "locals.require (method)"; }
 }
 

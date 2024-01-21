@@ -165,7 +165,7 @@ class _Parse{
 		this.next();
 
 		if(this.tok.type != "{")
-			this.SyntaxError("Invalid syntax '"~this.tok.value~ "' expected '{' after enum keyword.");
+			this.SyntaxError(format("Invalid syntax '%s' expected '{' after enum keyword.", tok.type));
 
 		this.next();
 
@@ -184,13 +184,18 @@ class _Parse{
 				keys ~= this.tok.value;
 				this.next();
 
-				if (this.tok.type != "="){
-					this.SyntaxError("Expected '=' not '"~this.tok.value~"' to assign enum value.");
-				}
+				skip_whitespace();
 
-				this.next();
-				this.skip_whitespace();
-				values ~= this.eval("NL,}");
+				if (this.tok.type == "="){
+					this.next();
+					this.skip_whitespace();
+					values ~= this.eval("NL,}");
+
+				} else if (canFind(",}", tok.type))
+					values ~= new NullNode();
+
+				else
+					this.SyntaxError(format("Unexcepted syntax '%s' when setting enum data", tok.value));
 			}
 		}
 
@@ -367,7 +372,7 @@ class _Parse{
 		else if (canFind("-+", tok.type))
 			ret = negative_data();
 
-		else if (tok.type == "?") {
+		else if (tok.type == "?" || tok.type == "FN") {
 			ret = unknownFnNode();
 			prev();
 

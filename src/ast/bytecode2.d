@@ -493,10 +493,12 @@ class Op_Or: LdByte {
 	}
 
 	override LdOBJECT opCall(HEAP* _heap) {
-		if(left(_heap).__true__ || right(_heap).__true__)
-			return RETURN.B;
+		auto firstOption = left(_heap);
 
-		return RETURN.C;
+		if (firstOption.__true__)
+			return firstOption;
+
+		return right(_heap);
 	}
 }
 
@@ -509,10 +511,12 @@ class Op_And: LdByte {
 	}
 
 	override LdOBJECT opCall(HEAP* _heap) {
-		if(left(_heap).__true__ && right(_heap).__true__)
-			return RETURN.B;
+		auto option = left(_heap);
 
-		return RETURN.C;
+		if (!(option.__true__))
+			return option;
+
+		return right(_heap);
 	}
 }
 

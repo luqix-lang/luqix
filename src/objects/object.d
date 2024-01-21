@@ -151,8 +151,7 @@ class LdChr: LdOBJECT
     }
 
 	override string __str__(){
-		//return cast(string)_chars;
-		return "b'"~cast(string)_chars~'\'';
+		return cast(string)_chars;
 	}
 
 	override double __true__(){
@@ -160,7 +159,7 @@ class LdChr: LdOBJECT
 	}
 
 	override string __json__(){
-        return "b'"~cast(string)_chars~'\'';
+        return __str__;
     }
 }
 

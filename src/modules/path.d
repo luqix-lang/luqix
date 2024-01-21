@@ -4,10 +4,8 @@ import std.format: format;
 import std.algorithm.searching: find;
 import std.algorithm.iteration: each, map;
 
-import std.array: array;
-
-import std.file;
 import std.path;
+import std.array: array;
 
 import LdObject;
 
@@ -20,11 +18,7 @@ class oPath: LdOBJECT
 
 	this(){
 		this.props = [
-            "exists": new _Exists(),
 
-			"isfile": new _IsFile(),
-            "isdir": new _IsDir(),
-            "islink": new _IsLink(),
 			"isvalidname": new _Isvalidname(),
 			
 			"join": new _Join(),
@@ -97,44 +91,6 @@ class _Relpath: LdOBJECT
     override string __str__() { return "path.relpath (method)"; }
 }
 
-
-
-class _IsFile: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-    	if (isFile(args[0].__str__))
-    		return new LdTrue();
-
-    	return new LdFalse();
-    }
-
-    override string __str__() { return "path.isfile (method)"; }
-}
-
-class _IsDir: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-    	if (isDir(args[0].__str__))
-    		return new LdTrue();
-
-    	return new LdFalse();
-    }
-
-    override string __str__() { return "path.isdir (method)"; }
-}
-
-class _IsLink: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        if (isSymlink(args[0].__str__))
-            return new LdTrue();
-
-        return new LdFalse();
-    }
-
-    override string __str__() { return "path.islink (method)"; }
-}
-
 class _Isvalidname: LdOBJECT 
 {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
@@ -147,17 +103,6 @@ class _Isvalidname: LdOBJECT
     override string __str__() { return "path.isvalidname (method)"; }
 }
 
-class _Exists: LdOBJECT 
-{
-    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-    	if (exists(args[0].__str__))
-    		return new LdTrue();
-
-    	return new LdFalse();
-    }
-
-    override string __str__() { return "path.exists (method)"; }
-}
 
 class _Join: LdOBJECT 
 {

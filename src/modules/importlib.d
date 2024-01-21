@@ -18,7 +18,6 @@ import LdObject;
 import lLocals, lSys: oSys;
 
 
-
 alias LdOBJECT[string] HEAP;
 HEAP imported_modules, _runtimeModules;
 
@@ -50,7 +49,7 @@ LdOBJECT[string] __setImp__(string[] args) {
 
 	auto mwima = [
 
-		"attr": _locals_functions["attr"],
+		"readAttributes": _locals_functions["readAttributes"],
 		"type": _locals_functions["type"],
 		
 		"print": _locals_functions["print"],
@@ -66,9 +65,9 @@ LdOBJECT[string] __setImp__(string[] args) {
 		"exec": _locals_functions["exec"],
 		"require": _locals_functions["require"],
 
-		"getattr": _locals_functions["getattr"],
-		"setattr": _locals_functions["setattr"],
-		"delattr": _locals_functions["delattr"],
+		"getAttribute": _locals_functions["getAttribute"],
+		"setAttribute": _locals_functions["setAttribute"],
+		"deleteAttribute": _locals_functions["deleteAttribute"],
 
 		"str": _locals_functions["str"],
 		"list": _locals_functions["list"],
@@ -80,7 +79,8 @@ LdOBJECT[string] __setImp__(string[] args) {
 	mwima.keys().each!(i => _StartHeap[i] = mwima[i]);
 	rehash(_StartHeap);
 
-	return ["%%%": _locals_functions["attr"]];
+	//return ["%%%": _locals_functions["readAttributes"]];
+	return ["%%%": RETURN.A];
 }
 
 
@@ -95,6 +95,8 @@ class LdModule: LdOBJECT {
 	}
 
 	override LdOBJECT[string] __props__(){ return props; }
+
+	override string __type__(){ return "module"; }
 
 	override string __str__(){ return format("%s (module at '%s')", name, _path); }
 }

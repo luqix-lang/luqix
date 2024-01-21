@@ -25,7 +25,7 @@ string cmp = "=!<>";
 string bitwise = "&|^";
 string operators = "+-*/%";
 
-enum escaped_keys = ['r':'\r', 't':'\t', 'n':'\n', 'b':'\b', '\\':'\\', 'a':'\a', 'f':'\f', 'v':'\v', '\'':'\'', '"': '\"', '`':'`', '?': '\?'];
+enum escaped_keys = ['r':'\r', 't':'\t', 'n':'\n', 'b':'\b', '\\':'\\', 'a':'\a', 'f':'\f', 'v':'\v', '\'':'\'', '"': '\"', '`':'`', '?': '\?', '`': '`'];
 
 
 class _Lex{
@@ -153,16 +153,16 @@ class _Lex{
 				_type = "DEL"; break;
 			case "class":
 				_type = "CL"; break;
-			case "let":
+			case "let", "var":
 				return;
 			default:
-				if (key == "r" && find("'\"", this.tok).length) {
+				if (key == "r" && find("'\"`", this.tok).length) {
 					writeln("me");
 					this.rString();
 					return;
 				}
 
-				if (key == "f" && find("'\"", this.tok).length){
+				if (key == "f" && find("'\"`", this.tok).length){
 					key = this.lex_string;
 					_type = "FMT";
 				
@@ -351,7 +351,7 @@ class _Lex{
 		next();
 
 		if (end) {
-			if (find("rtnbafv?\\'\"", tok).length)
+			if (find("rtnbafv?\\'\"`", tok).length)
 				return escaped_keys[tok];
 
 			else if (tok == 'x')
@@ -366,10 +366,17 @@ class _Lex{
 				}
 				back();
 				return cast(char)(to!int(str, 8));
-			}
+
+			} else if (tok == '\n')
+				this.line += 1;
 		}
 
-		return '\0';
+		next();
+
+		if (end && tok == '\n')
+			this.line += 1;
+
+		return tok;
 	}
 
 	string lex_string(){
@@ -459,7 +466,7 @@ class _Lex{
 			else if (find(operators, this.tok).length)
 				this.lex_operators();
 
-			else if (find("\"'", this.tok).length){
+			else if (find("\"'`", this.tok).length){
 				this.loc-=1;				
 				
 				TOKEN N = {lex_string, "STR", tab, line, loc};

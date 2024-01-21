@@ -59,10 +59,12 @@ class _Websocket: LdOBJECT {
 	HEAP*[] onmessage_file;
 	uint[] onmessage_line;
 
+	bool isopen;
+
 	this(){
 		this.client = client;
 		this.ws = new TcpSocket();
-
+		this.isopen = false;
 
 		version(all){
 			this.onopen = onopen;
@@ -79,6 +81,7 @@ class _Websocket: LdOBJECT {
 			"start": new _wsStart(this),
 
 			"close": new _wsClose(this),
+			"isopen": new _wsIsopen(this),
 		];
 	}
 
@@ -89,7 +92,9 @@ class _Websocket: LdOBJECT {
 			auto len = this.client.receive(buffer);
 
 			if (len <= 0) {
-				writeln("ERROR: websocket client disconnected or encounted an error.");
+				if (this.isopen)
+					throw new Exception("ERROR: websocket client disconnected or encounted an error.");
+
 				break;
 			}
 			
@@ -236,10 +241,28 @@ class _wsClose: LdOBJECT {
 		ws.ws.shutdown(SocketShutdown.BOTH);
 		ws.ws.close();
 
+		ws.isopen = false;
 		return RETURN.A;
 	}
 
 	override string __str__(){ return "close (websocket.Websocket method)"; }
+}
+
+class _wsIsopen: LdOBJECT {
+	_Websocket ws;
+
+	this (_Websocket ws){
+		this.ws = ws;
+	}
+
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, HEAP* mem=null){
+		if (this.ws.isopen)
+			return RETURN.B;
+
+		return RETURN.C;
+	}
+
+	override string __str__(){ return "isopen (websocket.Websocket method)"; }
 }
 
 

@@ -1,0 +1,17 @@
+var fs = require('fs')
+var time = require('time')
+
+
+book = fs.openFile('/home/rogers/Desktop/hey')
+
+gath = enum {data} 
+
+callBack = function (data) {
+	gath.data = bytes.append(gath.data, data)
+}
+
+book.blocks(1024, callBack)
+
+book.close()
+
+print(gath.data)

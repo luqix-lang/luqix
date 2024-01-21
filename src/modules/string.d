@@ -76,8 +76,12 @@ class oStr: LdOBJECT
     }
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-        if(args.length)
+        if(args.length){
+            if (args[0].__type__ == "bytes")
+                return new LdStr(cast(string)args[0].__chars__);
+
             return new LdStr(args[0].__str__);
+        }
         
         return new LdStr("");
     }
