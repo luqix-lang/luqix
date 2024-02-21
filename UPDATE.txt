@@ -1,0 +1,3 @@
+
+socket.d ----> getAddrInfo()
+	Not doing what it has to

@@ -89,6 +89,8 @@ class oFs: LdOBJECT
 
 	override LdOBJECT[string] __props__(){ return props; }
 
+	override string __type__(){ return "native module";}
+
 	override string __str__(){ return "fs (native module)"; }
 }
 
@@ -427,9 +429,15 @@ class _blocks: LdOBJECT {
 
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null) {
     	auto chunk = x.byChunk(cast(size_t)args[0].__num__);
-    	
-		foreach (ubyte[] b; chunk)
-			args[1]([new LdChr(cast(char[])b)]);    /// callback function with [one argument data]
+
+    	LdEnum stop_generator = new LdEnum("stopGenerator", ["stop": RETURN.B]);
+
+		foreach (ubyte[] b; chunk){
+			if (!(stop_generator.__props__["stop"].__true__))
+				break;
+
+			args[1]([new LdChr(cast(char[])b), stop_generator]);    /// callback function with [one argument data]
+		}
 
 		return RETURN.A;
     }

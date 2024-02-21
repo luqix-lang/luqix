@@ -1,17 +1,7 @@
-var fs = require('fs')
-var time = require('time')
+let pro = require('process')
 
 
-book = fs.openFile('/home/rogers/Desktop/hey')
+pid = pro.spawn('ls')
+pid.wait()
 
-gath = enum {data} 
-
-callBack = function (data) {
-	gath.data = bytes.append(gath.data, data)
-}
-
-book.blocks(1024, callBack)
-
-book.close()
-
-print(gath.data)
+print('done')

@@ -21,6 +21,9 @@ class oSubProcess: LdOBJECT
             "run": new _Run(),
             "Popen": new _Popen(),
             "browse": new _Browse(),
+            "pid": new LdNum(thisProcessID),
+
+            "spawn": new _Spawn(),
 		];
 	}
 
@@ -45,34 +48,32 @@ class _Run: LdOBJECT  {
 class _Browse: LdOBJECT {
     override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
     	browse(args[0].__str__);
-    	return RETURN.B;
+    	return RETURN.A;
     }
 
     override string __str__() { return "process.browse (method)"; }
 }
 
-
-
 class _Wait: LdOBJECT {
-	Pid pro;
-	this(Pid pro){ this.pro = pro; }
+	Pid pid;
+	this(Pid pid){ this.pid = pid; }
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
-		return new LdNum(wait(this.pro));
+		return new LdNum(wait(this.pid));
 	}
 
 	override string __str__(){ return "Popen.wait (process method)"; }
 }
 
 class _Kill: LdOBJECT {
-	Pid pro;
-	this(Pid pro){ this.pro = pro; }
+	Pid pid;
+	this(Pid pid){ this.pid = pid; }
 
 	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
 		if(args.length)
-			kill(this.pro, cast(int)args[0].__num__);
+			kill(this.pid, cast(int)args[0].__num__);
 		else
-			kill(this.pro);
+			kill(this.pid);
 
 		return RETURN.A;
 	}
@@ -103,9 +104,7 @@ class _Fetch: LdOBJECT {
 
 
 
-class _Pro: LdOBJECT 
-{
-	// pro ---- spawned process
+class _Pro: LdOBJECT {
 	Heap props;
 	File[string] files;
 
@@ -123,8 +122,7 @@ class _Pro: LdOBJECT
 }
 
 
-class _Popen: LdOBJECT 
-{
+class _Popen: LdOBJECT {
 	double shell;
 	File[string] files;
 
@@ -158,3 +156,55 @@ class _Popen: LdOBJECT
 }
 
 
+class _Spawn: LdOBJECT {
+    override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+        return new _PID(spawnProcess(split(args[0].__str__)));
+    }
+
+    override string __str__() { return "process.spawn (type)"; }
+    override string __type__() { return "process.spawn"; }
+}
+
+class _PID: LdOBJECT {
+	Heap props;
+
+	this(Pid pid){
+		this.props = [
+            "kill": new _spawn_Kill(pid),
+            "wait": new _spawn_Wait(pid),
+		];
+	}
+
+	override LdOBJECT[string] __props__(){ return props; }
+
+    override string __str__() { return "process.spawn (object)"; }
+    override string __type__() { return "process.spawn"; }
+}
+
+
+class _spawn_Wait: LdOBJECT {
+	Pid pid;
+	this(Pid pid){ this.pid = pid; }
+
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+		return new LdNum(wait(this.pid));
+	}
+
+	override string __str__(){ return "process.spawn.wait (process method)"; }
+}
+
+class _spawn_Kill: LdOBJECT {
+	Pid pid;
+	this(Pid pid){ this.pid = pid; }
+
+	override LdOBJECT opCall(LdOBJECT[] args, uint line=0, LdOBJECT[string]* mem=null){
+		if(args.length)
+			kill(this.pid, cast(int)args[0].__num__);
+		else
+			kill(this.pid);
+
+		return RETURN.A;
+	}
+
+	override string __str__(){ return "process.spawn.kill (process method)"; }
+}
